@@ -1,0 +1,76 @@
+====== Instalaciones
+
+    * Validaciones de los dtos
+        pnpm add class-validator class-transformer
+
+    * Para tomar las variables de entorno
+        pnpm add dotenv
+
+    * Validaciones de las variables de entorno
+        pnpm add zod
+
+    
+    * Para poder permitr tomar cookies que vamos a usar para las cuentas de usuario
+        pnpm add cookie-parser
+        pnpm add -D @types/cookie-parser
+
+====== Encriptar contraseñas bcrypt
+
+    pnpm add bcrypt @types/bcrypt
+
+
+====== Prisma / Atencion prisma 7 tiene problemas asi que bajamos a prisma 6
+
+    pnpm add -D prisma@6.19.0
+    pnpm add @prisma/client@6.19.0
+    
+    # Iniciamos prisma
+        pnpm prisma init
+            o
+        pnpm exec prisma init
+
+    # Generamos el cliente
+        pnpm prisma generate
+
+    # Migramos
+        pnpm prisma migrate dev 
+
+
+
+================= Docker
+
+    * Creamos el archivo docker-compose.yml y lo configuramos
+
+    * Levantamos docker, al levantarlo y tener configurado el docker-compose.yml nos va a crear la carpeta de postgress, y esa carpeta la tenemos que ignorar en el .gitignore
+        docker compose up -d
+    
+    * Creamos una tabla en tablePlus con los datos que le pusimos
+        ports:
+        - 5432:5432
+        environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=123456
+        - POSTGRES_DB=nestNextRealState
+
+
+====== Cuentas de usuario, Passport y Jwt
+
+    pnpm add @nestjs/passport passport
+    pnpm add @nestjs/jwt passport-jwt 
+    pnpm add -D @types/passport-jwt 
+
+===== Redis 
+
+    pnpm add @nestjs/cache-manager cache-manager ioredis
+
+==== Para crear los refresh-tokens
+        pnpm add uuid
+        pnpm add -D @types/uuid
+
+
+==== Cron
+    - esto de que sirve en nestjs pnpm add @nestjs/schedule
+        @nestjs/schedule sirve para ejecutar tareas automáticamente en determinados momentos, 
+        sin que un usuario tenga que hacer una petición HTTP.
+    
+    pnpm add @nestjs/schedule

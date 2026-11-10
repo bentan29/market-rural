@@ -1,0 +1,1 @@
+export const DEFAULT_SELLER_PLAN = 'FREE'

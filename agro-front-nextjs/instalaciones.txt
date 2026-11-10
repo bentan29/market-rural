@@ -1,0 +1,5 @@
+-- zod
+    pnpm add zod
+
+-- React hook form
+    pnpm add react-hook-form @hookform/resolvers
