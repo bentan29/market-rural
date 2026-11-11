@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { DashboardPageHeader } from "@/features/components/global/header/DashboardPageHeader"
