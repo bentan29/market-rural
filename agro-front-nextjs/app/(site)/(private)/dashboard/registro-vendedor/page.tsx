@@ -22,7 +22,7 @@ async function SellerGate() {
           ? {
               displayName: previous.displayName,
               about: previous.about ?? "",
-              phone: previous.phone,
+              phone: previous.phone ?? "",
               whatsapp: previous.whatsapp ?? "",
               website: previous.website ?? "",
               country: previous.country,
