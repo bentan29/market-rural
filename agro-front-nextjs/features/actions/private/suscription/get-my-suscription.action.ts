@@ -2,6 +2,7 @@ import 'server-only'
 
 import { serverGet } from '@/lib/auth/server-get'
 import type { SuscriptionType } from '@/lib/types/suscription.type'
+import { unstable_rethrow } from 'next/navigation';
 
 export type MySuscriptionResult =
   | { ok: true; suscription: SuscriptionType }
@@ -39,8 +40,12 @@ export async function getMySuscriptionAction(): Promise<MySuscriptionResult> {
       suscription: (await res.json()) as SuscriptionType 
     }
 
-  } catch (error) {
-    console.error('getMySuscription:', error)
+   } catch (error) {
+    //- Relanza errores internos de Next (prerender, redirect, notFound).
+    //- Tiene que ser lo primero del catch.
+    unstable_rethrow(error)
+
+    console.error('getMySuscriptionAction:', error)
     return { ok: false, status: 0, message: 'No se pudo conectar con el servidor' }
   }
 }
