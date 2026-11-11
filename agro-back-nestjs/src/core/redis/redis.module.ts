@@ -21,3 +21,9 @@ import { REDIS_CLIENT } from "src/common/constants";
 
 })
 export class RedisModule {}
+
+// cuando instalemos bullMq usemos este prefijo, prefix: 'marketrural',
+//   BullModule.forRoot({
+//     connection: { host, port, password },
+//     prefix: 'marketrural',
+//   })
