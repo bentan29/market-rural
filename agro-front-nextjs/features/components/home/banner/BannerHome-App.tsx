@@ -1,37 +1,14 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import Lightfall from "@/components/Lightfall"
+import { LightfallBackground } from "../../animations/LightfallBackground"
 
 export const BannerHomeApp = () => {
     return (
         <section className="relative h-[min(680px,calc(100svh-64px))] min-h-135 w-full overflow-hidden bg-teal-950 md:min-h-150">
             {/* 1. Animación de fondo */}
             <div className="absolute inset-0 z-0">
-                <Lightfall
-                    colors={["#ffffff"]}
-                    backgroundColor="#94a3b8"
-                    speed={0.3}
-                    streakCount={2}
-                    streakWidth={0.8}
-                    twinkle={0.3}
-                    backgroundGlow={0.1}
-                    headGlow={0.6}
-                    bloom={0.35}
-                    mouseInteraction
-                    holdToWarp
-                    intro
-                    streakLength={1}
-                    density={0.6}
-                    glow={1}
-                    depth={0.5}
-                    zoom={3}
-                    mouseStrength={0.4}
-                    mouseRadius={0.45}
-                    lens={0.5}
-                    fade={0}
-                    lightMode={false}
-                />
+                <LightfallBackground />
             </div>
 
             {/* 2. Tractor con desvanecimiento hacia la izquierda */}
