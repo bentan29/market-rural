@@ -34,6 +34,36 @@ function range(from?: number, to?: number) {
     }
 }
 
+//*- Los campos que muestran las tarjetas del catálogo y de la home
+const CARD_SELECT = {
+    id: true,
+    slug: true,
+    title: true,
+    operation: true,
+    rentPeriod: true,
+    condition: true,
+    currency: true,
+    price: true,
+    machineType: true,
+    year: true,
+    hours: true,
+    horsepower: true,
+    location: true,
+    country: true,
+    createdAt: true,
+    featuredUntil: true,
+    seller: { select: { displayName: true, slug: true } },
+} satisfies Prisma.ListingSelect
+
+function shuffle<T>(list: T[]): T[] {
+    const copy = [...list]
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[copy[i], copy[j]] = [copy[j], copy[i]]
+    }
+    return copy
+}
+
 @Injectable()
 export class ListingsService {
 
@@ -363,7 +393,7 @@ export class ListingsService {
 
     //* ========== RUTAS PUBLICAS ==================================================================================================================================
 
-    //? ---- Catalogo
+    //? ---- Catalogo de todas las maquinas
     async findPublic(query: ListingsQueryDto) {
 
         const {
@@ -424,24 +454,7 @@ export class ListingsService {
                 orderBy,
                 skip,
                 take: limit,
-                select: {
-                    id:true,
-                    slug: true,
-                    title: true,
-                    operation: true,
-                    rentPeriod: true,
-                    condition: true,
-                    currency: true,
-                    price: true,
-                    machineType: true,
-                    year: true,
-                    hours: true,
-                    location: true,
-                    country: true,
-                    createdAt: true,
-                    featuredUntil:true,
-                    seller: { select: { displayName: true, slug: true } },
-                },
+                select: CARD_SELECT,
             }),
             this.prismaClient.listing.count({ where }),
         ])
@@ -510,6 +523,29 @@ export class ListingsService {
             price: Number(price),
             featured: isFeatured(featuredUntil, now),
         }
+    }
+
+
+    //? ---- Destacadas para la home
+    async findFeatured(limit = 8) {
+        const now = new Date()
+        const take = Math.min(12, Math.max(1, limit))
+
+        //- Se piden más de las que se muestran y se mezclan: así los destacados rotan entre una actualización del caché y la siguiente
+        const items = await this.prismaClient.listing.findMany({
+            where: { AND: [publicListingWhere(now), { featuredUntil: { gt: now } }] },
+            orderBy: { updatedAt: 'desc' },
+            take: take * 3,
+            select: CARD_SELECT,
+        })
+
+        return shuffle(items)
+            .slice(0, take)
+            .map(({ featuredUntil, price, ...listing }) => ({
+                ...listing,
+                price: Number(price),
+                featured: true,
+            }))
     }
 
     

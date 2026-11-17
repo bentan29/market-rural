@@ -1,9 +1,10 @@
 //- Una publicación se ve en público solo si su vendedor no está dado de baja y su plan está vigente.
 
-import { Prisma, SubscriptionStatus } from "@prisma/client";
+import { ListingStatus, Prisma, SubscriptionStatus } from "@prisma/client";
 
 //- Usarlo en TODA consulta pública: catálogo, detalle, perfil público, sitemap...
 export const publicListingWhere = (now = new Date()): Prisma.ListingWhereInput => ({
+    status: ListingStatus.PUBLISHED,
     seller: {
         deletedAt: null,
         subscription: {

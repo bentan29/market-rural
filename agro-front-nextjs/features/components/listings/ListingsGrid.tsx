@@ -1,11 +1,11 @@
 import type { ListingType } from "@/lib/types/listing.type"
-import { ProductCard } from "./ProductCard"
+import { ListingCard } from "./ListingCard"
 
 interface Props {
   listings: ListingType[]
 }
 
-export const ProductsGrid = ({ listings }: Props) => {
+export const ListingsGrid = ({ listings }: Props) => {
 
   if (listings.length === 0) {
     return (
@@ -18,7 +18,10 @@ export const ProductsGrid = ({ listings }: Props) => {
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
       {listings.map((listing) => (
-        <ProductCard key={listing.id} listing={listing} />
+        <ListingCard 
+          key={listing.id} 
+          listing={listing} 
+        />
       ))}
     </div>
   )

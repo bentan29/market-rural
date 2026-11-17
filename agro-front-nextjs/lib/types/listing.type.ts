@@ -42,3 +42,18 @@ export type MyListingDetail = ListingType & {
   description: string
 }
 
+
+export type PublicListingDetail = Omit<ListingType, 'seller'> & {
+  description: string
+  seller: {
+    displayName: string
+    slug: string
+    avatarUrl: string | null
+    phone: string
+    whatsapp: string | null
+    website: string | null
+    country: string
+    location: string
+  }
+}
+

@@ -12,7 +12,5 @@ export const metadata: Metadata = {
 export default function CatalogoPage({ searchParams }: {
     searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-
   return <CatalogShell country={null} searchParams={searchParams} />
-  
 }

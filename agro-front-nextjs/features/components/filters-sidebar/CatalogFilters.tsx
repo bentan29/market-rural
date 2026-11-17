@@ -1,18 +1,19 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react"
-import { Search01Icon } from "@hugeicons/core-free-icons"
+import { DeleteRowIcon, Search01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, useSidebar } from "@/components/ui/sidebar"
 import {
-  CATALOG_CONDITIONS,
-  CATALOG_CURRENCIES,
-  CATALOG_OPERATIONS,
+    CATALOG_CONDITIONS,
+    CATALOG_CURRENCIES,
+    CATALOG_OPERATIONS,
 } from "@/features/Nuqs/catalog/catalog-search-params"
 import { useCatalogFilters } from "@/features/Nuqs/catalog/use-catalog-filters"
 import { CountrySwitcher } from "./CountrySwitcher"
 import { TypeFilter } from "./TypeFilter"
 import { FilterChip, FilterSection, NumberField, toggle } from "./Filter-atoms"
+import { Button } from "@/components/ui/button"
 
 const OPERATION_LABEL = { SALE: "Venta", RENT: "Alquiler" } as const
 const CONDITION_LABEL = { NEW: "Nueva", USED: "Usada" } as const
@@ -22,48 +23,48 @@ const MAX_YEAR = new Date().getFullYear() + 1
 //- Búsqueda de texto: escribe en la URL 500 ms después de dejar de tipear
 function SearchField({ value, onCommit }: { value: string; onCommit: (value: string) => void }) {
 
-  const [text, setText] = useState(value)
-  const sent = useRef(value)
+    const [text, setText] = useState(value)
+    const sent = useRef(value)
 
-  useEffect(() => {
-    if (text === sent.current) return
-    const id = setTimeout(() => {
-      sent.current = text
-      onCommit(text)
-    }, 500)
-    return () => clearTimeout(id)
-  }, [text, onCommit])
+    useEffect(() => {
+        if (text === sent.current) return
+        const id = setTimeout(() => {
+            sent.current = text
+            onCommit(text)
+        }, 500)
+        return () => clearTimeout(id)
+    }, [text, onCommit])
 
-  //- Si la URL cambia desde afuera (limpiar, atrás), el campo la sigue sin pisar lo que se está tipeando
-  useEffect(() => {
-    if (value !== sent.current) {
-      sent.current = value
-      setText(value)
-    }
-  }, [value])
+    //- Si la URL cambia desde afuera (limpiar, atrás), el campo la sigue sin pisar lo que se está tipeando
+    useEffect(() => {
+        if (value !== sent.current) {
+            sent.current = value
+            setText(value)
+        }
+    }, [value])
 
-  return (
-    <label className="relative block">
-      <HugeiconsIcon
-        icon={Search01Icon}
-        size={16}
-        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/40"
-      />
-      <input
-        type="search"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        maxLength={80}
-        placeholder="Marca, modelo o palabra clave"
-        aria-label="Buscar en el catálogo"
-        className="h-11 w-full rounded-sm border border-white/15 bg-black/20 pl-9 pr-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20"
-      />
-    </label>
-  )
+    return (
+        <label className="relative block">
+            <HugeiconsIcon
+                icon={Search01Icon}
+                size={16}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/40"
+            />
+            <input
+                type="search"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                maxLength={80}
+                placeholder="Marca, modelo o palabra clave"
+                aria-label="Buscar en el catálogo"
+                className="h-11 w-full rounded-sm border border-white/15 bg-black/20 pl-9 pr-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-lime-400 focus:ring-2 focus:ring-lime-400/20"
+            />
+        </label>
+    )
 }
 
 export function CatalogFilters() {
-    // const { isMobile, setOpenMobile } = useSidebar()
+    const { isMobile, setOpenMobile } = useSidebar()
     const [isPending, startTransition] = useTransition()
     const [f, setF] = useCatalogFilters(startTransition)
 
@@ -101,9 +102,8 @@ export function CatalogFilters() {
 
     return (
         <Sidebar
-            
             collapsible="offcanvas"
-            className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
+            className="top-(--header-height) bottom-(--footer-overlap,0px) h-auto!"
         >
             <SidebarHeader
                 className="flex flex-row items-center justify-between gap-2 border-b border-white/10 bg-teal-950 px-5 py-3"
@@ -138,7 +138,7 @@ export function CatalogFilters() {
 
             <SidebarContent className="gap-0 bg-teal-900">
 
-                <div className="flex flex-col gap-4 p-3"> 
+                <div className="flex flex-col gap-4 p-3">
 
                     <SearchField value={f.q} onCommit={commitSearch} />
 
@@ -186,13 +186,13 @@ export function CatalogFilters() {
                                 const active = f.yearFrom === year && f.yearTo === null
 
                                 return (
-                                <FilterChip
-                                    key={year}
-                                    active={active}
-                                    onClick={() => setF({ yearFrom: active ? null : year, yearTo: null, page: 1 })}
-                                >
-                                    {year}+
-                                </FilterChip>
+                                    <FilterChip
+                                        key={year}
+                                        active={active}
+                                        onClick={() => setF({ yearFrom: active ? null : year, yearTo: null, page: 1 })}
+                                    >
+                                        {year}+
+                                    </FilterChip>
                                 )
                             })}
                         </div>
@@ -221,37 +221,37 @@ export function CatalogFilters() {
                 <FilterSection index={5} title="Precio" count={f.minPrice !== null || f.maxPrice !== null ? 1 : 0}>
                     <div className="space-y-3">
                         <div className="flex flex-wrap gap-1.5">
-                        {CATALOG_CURRENCIES.map((code) => (
-                            <FilterChip
-                            key={code}
-                            active={currency === code}
-                            onClick={() => setF({ currency: code === "USD" ? null : code, page: 1 })}
-                            className="h-7 px-2.5 font-mono"
-                            >
-                            {code}
-                            </FilterChip>
-                        ))}
+                            {CATALOG_CURRENCIES.map((code) => (
+                                <FilterChip
+                                    key={code}
+                                    active={currency === code}
+                                    onClick={() => setF({ currency: code === "USD" ? null : code, page: 1 })}
+                                    className="h-7 px-2.5 font-mono"
+                                >
+                                    {code}
+                                </FilterChip>
+                            ))}
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
-                        <NumberField
-                            label="Mínimo"
-                            value={f.minPrice}
-                            onCommit={(minPrice) => setF({ minPrice, page: 1 })}
-                            placeholder="0"
-                            prefix={currency}
-                            min={0}
-                            max={9_999_999_999}
-                        />
-                        <NumberField
-                            label="Máximo"
-                            value={f.maxPrice}
-                            onCommit={(maxPrice) => setF({ maxPrice, page: 1 })}
-                            placeholder="Sin tope"
-                            prefix={currency}
-                            min={0}
-                            max={9_999_999_999}
-                        />
+                            <NumberField
+                                label="Mínimo"
+                                value={f.minPrice}
+                                onCommit={(minPrice) => setF({ minPrice, page: 1 })}
+                                placeholder="0"
+                                prefix={currency}
+                                min={0}
+                                max={9_999_999_999}
+                            />
+                            <NumberField
+                                label="Máximo"
+                                value={f.maxPrice}
+                                onCommit={(maxPrice) => setF({ maxPrice, page: 1 })}
+                                placeholder="Sin tope"
+                                prefix={currency}
+                                min={0}
+                                max={9_999_999_999}
+                            />
                         </div>
                     </div>
                 </FilterSection>
@@ -296,29 +296,31 @@ export function CatalogFilters() {
                 </FilterSection>
             </SidebarContent>
 
-            {/* {(activeCount > 0 || isMobile) && (
+            {(activeCount > 0 || isMobile) && (
                 <SidebarFooter className="gap-2 border-t border-white/10 p-4 bg-teal-950">
                     {isMobile && (
                         <button
-                        type="button"
-                        onClick={() => setOpenMobile(false)}
-                        className="h-11 w-full rounded-sm bg-lime-400 text-sm font-semibold text-teal-950 outline-none focus-visible:ring-2 focus-visible:ring-white"
+                            type="button"
+                            onClick={() => setOpenMobile(false)}
+                            className="h-11 w-full rounded-sm bg-lime-400 text-sm font-semibold text-teal-950 outline-none focus-visible:ring-2 focus-visible:ring-white"
                         >
-                        Ver resultados
+                            Ver resultados
                         </button>
                     )}
 
                     {activeCount > 0 && (
-                        <button
-                        type="button"
-                        onClick={reset}
-                        className="h-10 w-full rounded-sm border border-white/15 text-sm text-white/80 outline-none hover:border-white/40 hover:text-white focus-visible:ring-2 focus-visible:ring-lime-400/40"
+                        <Button
+                            type="button"
+                            onClick={reset}
+                            variant="destructive"
+                            className="rounded-xs"
                         >
-                        Limpiar todo
-                        </button>
+                            <HugeiconsIcon icon={DeleteRowIcon} />
+                            Limpiar filtros
+                        </Button>
                     )}
                 </SidebarFooter>
-            )} */}
+            )}
         </Sidebar>
     )
 }

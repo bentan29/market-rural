@@ -2,13 +2,11 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
   ArrowUpRight01Icon,
   Calendar03Icon,
   DashboardSpeed01Icon,
-  FavouriteIcon,
   HorseHeadIcon,
   Location01Icon,
   TractorIcon,
@@ -19,6 +17,7 @@ import { Card } from "@/components/ui/card"
 import { MACHINE_GROUPS, type MachineItem } from "@/features/constants/products/type-machine.constant"
 import type { ListingType } from "@/lib/types/listing.type"
 import { cn } from "@/lib/utils"
+import { ButtonFavorite } from "./Button-Favorite"
 
 const conditionLabel = { NEW: "Nueva", USED: "Usada" } as const
 
@@ -46,17 +45,15 @@ interface Spec {
 
 interface Props {
   listing: ListingType
-  initialFavorite?: boolean
-  onToggleFavorite?: (id: string, value: boolean) => void
+  isFavorite?: boolean
 }
 
-export function ProductCard({ listing, initialFavorite = false, onToggleFavorite }: Props) {
+export function ListingCard({ listing, isFavorite = false }: Props) {
+
   const {
     id, slug, title, operation, rentPeriod, condition, currency, price,
     machineType, year, hours, horsepower, location, featured, imageUrl,
   } = listing
-
-  const [favorite, setFavorite] = useState(initialFavorite)
 
   const formattedPrice = new Intl.NumberFormat("es-UY", {
     style: "currency",
@@ -64,11 +61,7 @@ export function ProductCard({ listing, initialFavorite = false, onToggleFavorite
     maximumFractionDigits: 0,
   }).format(price)
 
-  const handleFavorite = () => {
-    const next = !favorite
-    setFavorite(next)
-    onToggleFavorite?.(id, next)
-  }
+
 
   const specs: Spec[] = [
     { icon: Calendar03Icon, label: "Año", value: String(year) },
@@ -91,7 +84,7 @@ export function ProductCard({ listing, initialFavorite = false, onToggleFavorite
     <Card
       className={cn(
         "group relative gap-0 overflow-hidden rounded-sm border border-stone-200 bg-white py-0 text-stone-900 shadow-none",
-        "transition-colors duration-300 hover:border-stone-900",
+        "transition-colors duration-300 hover:border-amber-500/60",
       )}
     >
       {/* Imagen */}
@@ -121,20 +114,8 @@ export function ProductCard({ listing, initialFavorite = false, onToggleFavorite
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={handleFavorite}
-          aria-label={favorite ? "Quitar de favoritos" : "Guardar en favoritos"}
-          aria-pressed={favorite}
-          className="absolute right-3 top-3 grid size-8 place-items-center rounded-sm bg-white/90 text-stone-900 backdrop-blur transition-colors hover:bg-white"
-        >
-          <HugeiconsIcon
-            icon={FavouriteIcon}
-            size={16}
-            strokeWidth={1.8}
-            className={cn("transition-colors", favorite && "fill-orange-600 text-orange-600")}
-          />
-        </button>
+        <ButtonFavorite listingId={listing.id}/>
+        
       </div>
 
       {/* Contenido */}

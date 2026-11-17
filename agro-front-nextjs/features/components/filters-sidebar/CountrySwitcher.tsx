@@ -11,8 +11,10 @@ const rememberCountry = (slug: string) => {
 }
 
 export function CountrySwitcher() {
-    const params = useParams<{ pais?: string }>()
+
+    const params = useParams<{ pais?: string; slug?: string }>()
     const searchParams = useSearchParams()
+    if (params.slug) return null // /agente/[slug]
     const current = params.pais ?? null
 
     //- Al cambiar de país se conservan los filtros, pero se vuelve a la página 1

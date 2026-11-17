@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toast";
 import { AuthProvider } from "@/features/providers/AuthProvider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { FavoriteProvider } from "@/features/providers/FavoritesProvider";
 
 const roboto = Roboto({subsets:['latin'],variable:'--font-sans'});
 
@@ -32,7 +33,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <NuqsAdapter>
           <AuthProvider>
-            {children}
+            <FavoriteProvider>
+              {children}
+            </FavoriteProvider>
             <Toaster />
           </AuthProvider>
         </NuqsAdapter>

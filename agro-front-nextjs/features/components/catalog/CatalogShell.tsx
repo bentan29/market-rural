@@ -1,7 +1,8 @@
 import { Suspense } from "react"
 import { PageTitle } from "@/features/components/global/header/PageTitle"
 import type { CatalogCountry } from "@/features/constants/catalog/countries"
-import CatalogView from "./CatalogView"
+import { CatalogResults } from "./CatalogResults"
+
 
 type Props = {
     country: CatalogCountry | null
@@ -17,9 +18,11 @@ export function CatalogShell({ country, searchParams }: Props) {
             />
 
             <Suspense fallback={<div className="h-40 animate-pulse rounded-sm bg-muted" />}>
-                <CatalogView 
-                    country={country} 
-                    searchParams={searchParams} 
+                <CatalogResults
+                    scope={{ country: country?.code ?? null }}
+                    basePath={country ? `/catalogo/${country.slug}` : "/catalogo"}
+                    countLabel={country ? ` en ${country.name}` : ""}
+                    searchParams={searchParams}
                 />
             </Suspense>
         </div>

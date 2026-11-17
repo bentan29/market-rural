@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ListingsService } from './listings.service';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -75,15 +75,28 @@ export class ListingsController {
 
 
   //* ================ RUTAS PUBLICAS ================
+  //- todas las maquinas
   @Get('catalog')
-  getCatalog(@Query() query: ListingsQueryDto) {
+  getCatalog(
+    @Query() query: ListingsQueryDto
+  ) {
     return this.listingsService.findPublic(query)
   }
 
-    //- Va DESPUÉS de las rutas fijas (myListings, catalog): si no, ":slug" las capturaría
+  //- Publicaciones destacadas
+  @Get('featured')
+  getFeatured(
+    @Query('limit', new DefaultValuePipe(8), ParseIntPipe) limit: number
+  ) {
+    return this.listingsService.findFeatured(limit)
+  }
+
+  //- publicacion por slug
+  //- Va DESPUÉS de las rutas fijas (myListings, catalog): si no, ":slug" las capturaría
   @Get(':slug')
   getBySlug(@Param('slug') slug: string) {
     return this.listingsService.findPublicBySlug(slug)
   }
+
 
 }
