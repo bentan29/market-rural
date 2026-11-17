@@ -196,7 +196,6 @@ model User {
   seller   Seller?
 
   favorites Favorite[]
-  inquiry Inquiry[] //- consulta
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -244,6 +243,7 @@ model Seller {
 
   subscription Subscription?
   listings Listing[]
+  inquiries Inquiry[]
 
   deletedAt DateTime? 
 
