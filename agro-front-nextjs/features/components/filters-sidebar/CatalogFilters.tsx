@@ -312,8 +312,7 @@ export function CatalogFilters() {
                         <Button
                             type="button"
                             onClick={reset}
-                            variant="destructive"
-                            className="rounded-xs"
+                            className="flex bg-red-800/80 rounded-sm hover:bg-red-700/80 border border-white/50"
                         >
                             <HugeiconsIcon icon={DeleteRowIcon} />
                             Limpiar filtros
