@@ -4,6 +4,7 @@ import { getListingsAction } from "@/features/actions/public/listings/get-listin
 import { MACHINE_GROUPS, type MachineItem } from "@/features/constants/products/type-machine.constant"
 import { catalogParsers } from "@/features/Nuqs/catalog/catalog-search-params"
 import { ListingsGrid } from "../listings/ListingsGrid"
+import { PaginationApp } from "../global/pagination/Pagination-App"
 
 const cache = createSearchParamsCache(catalogParsers)
 
@@ -46,6 +47,7 @@ type Props = {
 }
 
 export async function CatalogResults({ scope, basePath, countLabel = "", searchParams }: Props) {
+
   const filters = sanitize(await cache.parse(searchParams))
 
   const hasFilters =
@@ -59,7 +61,7 @@ export async function CatalogResults({ scope, basePath, countLabel = "", searchP
     ].some((value) => value !== null)
 
   try {
-    const { items, total } = await getListingsAction({
+    const { items, total, totalPages } = await getListingsAction({
       ...filters,
       country: scope.country ?? null,
       seller: scope.seller ?? null,
@@ -88,11 +90,16 @@ export async function CatalogResults({ scope, basePath, countLabel = "", searchP
 
     return (
       <div className="space-y-4">
+
         <p className="text-sm text-muted-foreground">
           {total} {total === 1 ? "máquina" : "máquinas"}
           {countLabel}
         </p>
+
         <ListingsGrid listings={items} />
+
+        <PaginationApp totalPages={totalPages} />
+
       </div>
     )
   } catch (error) {

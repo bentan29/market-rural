@@ -3,6 +3,7 @@ import { getallMyListingsAction } from "@/features/actions/private/listings/get-
 import { MyListingsFilters } from "@/features/components/dashboard/listings/table/MyListingsFilter";
 import { MyListingsTable } from "@/features/components/dashboard/listings/table/MyListingsTable";
 import { DashboardPageHeader } from "@/features/components/global/header/DashboardPageHeader";
+import { PaginationApp } from "@/features/components/global/pagination/Pagination-App";
 import { privateListingsNuqs } from "@/features/Nuqs/private/private-listings-nuqs";
 import { Add02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -41,7 +42,7 @@ async function ListeningContent({searchParams} : Props) {
     const hasFilters =
         filters.q !== "" || filters.status.length > 0 || filters.operation.length > 0
         
-    const { items, total } = result.data
+    const { items, total, totalPages } = result.data
 
    
 
@@ -80,13 +81,15 @@ async function ListeningContent({searchParams} : Props) {
         )
     }
 
-
+    // --- Publicaciones
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 mb-6">
             <p className="text-sm text-muted-foreground">
                 {total} {total === 1 ? "publicación" : "publicaciones"}
             </p>
             <MyListingsTable listings={items} />
+
+            <PaginationApp totalPages={totalPages}/>
         </div>
     )
 }

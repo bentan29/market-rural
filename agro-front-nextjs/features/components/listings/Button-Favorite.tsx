@@ -8,7 +8,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { cn } from "cn"
 import { useState } from "react"
 import { AlertDialogApp } from "../global/alertDialog/AlertDialogApp"
-import { toggleFavoriteAction } from "@/features/actions/public/favorites/toggle-favorite.action"
+import { toggleFavoriteAction } from "@/features/actions/private/favorites/toggle-favorite.action"
 import { useFavorites } from "@/features/providers/FavoritesProvider"
 
 interface Props {

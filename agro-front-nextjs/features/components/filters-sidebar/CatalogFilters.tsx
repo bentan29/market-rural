@@ -103,6 +103,7 @@ export function CatalogFilters() {
 
     return (
         <Sidebar
+            position="sticky"
             collapsible="offcanvas"
             className="top-(--header-height) bottom-(--footer-overlap,0px) h-auto!"
         >

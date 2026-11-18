@@ -6,7 +6,7 @@ import type { PublicListingDetail } from "@/lib/types/listing.type"
 const API = process.env.API_URL
 
 //- Pública: va con caché. updateTag('listings') la invalida cuando algo cambia
-export async function getPublicListing(slug: string): Promise<PublicListingDetail | null> {
+export async function getListingDetails(slug: string): Promise<PublicListingDetail | null> {
     "use cache"
     cacheLife("hours")
     cacheTag("listings", `listing-${slug}`)

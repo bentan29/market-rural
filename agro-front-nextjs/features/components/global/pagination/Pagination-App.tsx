@@ -41,7 +41,7 @@ export const PaginationApp = ({ totalPages }: Props) => {
     const pages = getPages()
 
     return (
-      <Pagination>
+      <Pagination className="mt-10">
         <PaginationContent>
 
           <PaginationItem>

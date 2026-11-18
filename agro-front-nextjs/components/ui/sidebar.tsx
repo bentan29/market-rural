@@ -150,7 +150,10 @@ function SidebarProvider({
   )
 }
 
+type SidebarPosition = "fixed" | "sticky"
+
 function Sidebar({
+  position = "fixed",
   side = "left",
   variant = "sidebar",
   collapsible = "offcanvas",
@@ -159,6 +162,7 @@ function Sidebar({
   dir,
   ...props
 }: React.ComponentProps<"div"> & {
+  position?: SidebarPosition
   side?: "left" | "right"
   variant?: "sidebar" | "floating" | "inset"
   collapsible?: "offcanvas" | "icon" | "none"
@@ -231,7 +235,7 @@ function Sidebar({
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
-          "sticky top-0 z-10 hidden h-svh w-(--sidebar-width) shrink-0 self-start transition-[width] duration-200 ease-linear md:flex",
+          `${position} top-0 z-10 hidden h-svh w-(--sidebar-width) shrink-0 self-start transition-[width] duration-200 ease-linear md:flex`,
           // Adjust the padding for floating and inset variants.
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"

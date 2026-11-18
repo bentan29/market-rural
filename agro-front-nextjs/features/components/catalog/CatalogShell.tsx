@@ -11,7 +11,7 @@ type Props = {
 
 export function CatalogShell({ country, searchParams }: Props) {
     return (
-        <div className="flex flex-col gap-8 pb-8">
+        <div className="flex flex-col gap-8 mb-10">
             <PageTitle
                 eyebrow="Catálogo"
                 title={country ? `Maquinaria agrícola en ${country.name}` : "Maquinaria agrícola en venta y alquiler"}

@@ -8,7 +8,7 @@ export const GlobalNavBar = () => {
     return (
         <header
             className="
-                sticky top-0 z-50 w-full bg-linear-to-r from-[#022f2b] via-[#075e54] to-[#087c70] backdrop-blur-md
+                sticky top-0 z-50 w-full bg-linear-to-r from-[#022f2b] via-[#075e54] to-primary backdrop-blur-md
                 grid grid-cols-[1fr_auto] shadow-md shadow-black/30
                 md:flex md:h-(--header-height) md:items-center md:justify-between md:px-8
             "

@@ -12,11 +12,12 @@ import {
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Badge } from "@/components/ui/badge"
-// import { ContactForm } from "@/features/components/listing/ContactForm"
 import { CATALOG_COUNTRIES } from "@/features/constants/catalog/countries"
 import { getMachineLabel } from "@/features/constants/products/type-machine.constant"
-import { getPublicListing } from "@/features/actions/public/listings/listing-detail"
+import { getListingDetails } from "@/features/actions/public/listings/get-listing-detail"
 import { telUrl, whatsappUrl } from "@/features/helpers/contact-phone"
+import { ContactForm } from "@/features/components/listing-details/ContactForm"
+
 
 const SLUG_REGEX = /^[a-z0-9-]{1,120}$/
 
@@ -29,7 +30,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params
-    const listing = SLUG_REGEX.test(slug) ? await getPublicListing(slug) : null
+    const listing = SLUG_REGEX.test(slug) ? await getListingDetails(slug) : null
 
     if (!listing) return { title: "Publicación no encontrada", robots: { index: false } }
 
@@ -48,7 +49,7 @@ async function ListingDetail({ params }: Props) {
     const { slug } = await params
     if (!SLUG_REGEX.test(slug)) notFound()
 
-    const listing = await getPublicListing(slug)
+    const listing = await getListingDetails(slug)
     if (!listing) notFound()
 
     const { seller } = listing
@@ -114,7 +115,7 @@ async function ListingDetail({ params }: Props) {
             />
 
             <nav aria-label="Ruta" className="mb-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <Link href="/maquinarias" className="hover:text-foreground hover:underline">Catálogo</Link>
+                <Link href="/maquinarias" className="hover:text-foreground hover:underline">Maquinarias</Link>
                 {country && (
                     <>
                         <span aria-hidden>/</span>
@@ -253,11 +254,11 @@ async function ListingDetail({ params }: Props) {
                         )}
                     </div>
 
-                    {/* <ContactForm
-                        slug={listing.slug}
-                        listingTitle={listing.title}
-                        sellerName={seller.displayName}
-                    /> */}
+                    <ContactForm
+                        slug={listing.slug} 
+                        listingTitle={listing.title} 
+                        sellerName={seller.displayName} 
+                    />
                 </aside>
             </div>
         </div>

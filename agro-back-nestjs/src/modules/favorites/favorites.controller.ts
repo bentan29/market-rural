@@ -21,7 +21,7 @@ export class FavoritesController {
   }
 
   //- Tomamos todas nuestras favoritas
-  @Get()
+  @Get('myFavorites')
   getOurFavorites(
     @Query() paginationFavourites: PaginationDto,
     @GetUser() user: client.User

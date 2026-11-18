@@ -10,12 +10,14 @@ import { SellerModule } from './modules/seller/seller.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
+import { BullModule } from '@nestjs/bullmq';
+import { envs } from './core/config';
 
 @Module({
   imports: [
-    AuthModule, 
+    AuthModule,
     SellerModule,
-    PrismaModule, 
+    PrismaModule,
     RedisModule,
     UserModule,
     TokensModule,
@@ -24,6 +26,14 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
     SeedModule,
     SubscriptionModule,
     FavoritesModule,
+
+    //? BullMQ
+    BullModule.forRoot({
+      connection: {
+        host: envs.redisHost ?? 'localhost',
+        port: envs.redisPort ?? 6379,
+      }
+    })
   ],
 })
-export class AppModule {}
+export class AppModule { }

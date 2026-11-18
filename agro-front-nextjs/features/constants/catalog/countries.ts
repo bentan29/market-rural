@@ -18,3 +18,9 @@ export const COUNTRY_BY_SLUG: Record<string, CatalogCountry | undefined> = Objec
 //     ["argentina", { slug: "argentina", code: "AR", name: "Argentina" }],
 //     ["brasil", { slug: "brasil", code: "BR", name: "Brasil" }],
 // ]
+
+
+//* Obtenemos el nombre del pais
+export const COUNTRY_NAMES = new Map<string, string>(
+    CATALOG_COUNTRIES.map((country) => [country.code, country.name])
+)

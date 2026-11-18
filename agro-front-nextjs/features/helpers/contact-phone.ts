@@ -1,10 +1,9 @@
 //- Mismo criterio que el backend (phone.util.ts)
 const DIAL_CODES: Record<string, string> = {
-    UY: '598',
-    AR: '54',
-    PE: '51',
-    BR: '55',
-    PY: '595',
+    UY: '598',  //- Uruguay
+    AR: '54',   //- Argentina
+    BR: '55',   //- Brasil
+    PY: '595',  //- Paraguay
  }
 
 export function toInternationalDigits(phone: string, country: string): string | null {
