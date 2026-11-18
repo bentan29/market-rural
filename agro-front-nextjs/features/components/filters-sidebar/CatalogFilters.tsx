@@ -64,6 +64,7 @@ function SearchField({ value, onCommit }: { value: string; onCommit: (value: str
 }
 
 export function CatalogFilters() {
+    
     const { isMobile, setOpenMobile } = useSidebar()
     const [isPending, startTransition] = useTransition()
     const [f, setF] = useCatalogFilters(startTransition)
@@ -312,7 +313,7 @@ export function CatalogFilters() {
                         <Button
                             type="button"
                             onClick={reset}
-                            className="flex bg-red-800/80 rounded-sm hover:bg-red-700/80 border border-white/50"
+                            className="flex bg-red-800/50 rounded-sm hover:bg-red-700/50 border border-white/50"
                         >
                             <HugeiconsIcon icon={DeleteRowIcon} />
                             Limpiar filtros

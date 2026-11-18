@@ -17,10 +17,12 @@ import { DashboardMenu } from "./dashboardMenus"
 import { SellerCta } from "./SellerCta"
 import { data } from "../constants/options-sidebar-dashboard"
 import { useAuth } from "@/features/providers/AuthProvider"
+import { useFavorites } from "@/features/providers/FavoritesProvider"
 
 export function DashboardSidebar() {
 
   const { user, status } = useAuth()
+  const { favoritesCount } = useFavorites()
 
   return (
     <Sidebar
@@ -28,7 +30,15 @@ export function DashboardSidebar() {
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
     >
       <SidebarContent>
-        <DashboardMenu label="Configuración" items={data.userMenus} />
+
+        <DashboardMenu
+          label="Configuración"
+          items={data.userMenus.map((item) =>
+              item.url === "/dashboard/favoritos"
+                  ? { ...item, badge: favoritesCount }
+                  : item
+          )}
+        />
 
         {/* Según el rol: vendedor ve su menú, usuario común ve la invitación */}
         {status === 'loading' ? (

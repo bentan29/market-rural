@@ -20,7 +20,7 @@ export function CatalogShell({ country, searchParams }: Props) {
             <Suspense fallback={<div className="h-40 animate-pulse rounded-sm bg-muted" />}>
                 <CatalogResults
                     scope={{ country: country?.code ?? null }}
-                    basePath={country ? `/catalogo/${country.slug}` : "/catalogo"}
+                    basePath={country ? `/maquinarias/${country.slug}` : "/maquinarias"}
                     countLabel={country ? ` en ${country.name}` : ""}
                     searchParams={searchParams}
                 />

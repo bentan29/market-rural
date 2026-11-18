@@ -23,7 +23,7 @@ async function FeaturedItems() {
                     </div>
 
                     <Link
-                        href="/catalogo"
+                        href="/maquinarias"
                         className="text-sm font-medium underline-offset-4 outline-none hover:underline focus-visible:underline"
                     >
                         Ver todo el catálogo →

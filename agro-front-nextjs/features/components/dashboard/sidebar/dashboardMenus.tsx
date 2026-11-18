@@ -78,6 +78,12 @@ function DashboardMenuContent({ label, items }: NavMainProps) {
               >
                 {item.icon && <HugeiconsIcon icon={item.icon} />}
                 <span>{item.title}</span>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-sm bg-brand text-white px-1.5 text-xs font-medium group-data-[collapsible=icon]:hidden">
+                      {item.badge}
+                  </span>
+                )}
+
               </SidebarMenuButton>
             )}
           </SidebarMenuItem>

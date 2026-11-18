@@ -7,10 +7,10 @@ import { apiFetch } from "@/lib/api"
 type FavoritesContextValue = {
     isFavorite: (listingId: string) => boolean
     setFavorite: (listingId: string, value: boolean) => void
+    favoritesCount: number
 }
 
 const FavoritesContext = createContext<FavoritesContextValue | null>(null)
-
 
 export function FavoriteProvider({children}: {children: React.ReactNode}) {
 
@@ -39,7 +39,10 @@ export function FavoriteProvider({children}: {children: React.ReactNode}) {
         }
     }, [userId])
 
-    const isFavorite = useCallback((id: string) => ids.has(id), [ids])
+    const isFavorite = useCallback(
+        (id: string) => ids.has(id), 
+        [ids]
+    )
 
     const setFavorite = useCallback((id: string, value: boolean) => {
         setIds((prev) => {
@@ -50,9 +53,19 @@ export function FavoriteProvider({children}: {children: React.ReactNode}) {
         })
     }, [])
 
-    const value = useMemo(() => ({ isFavorite, setFavorite }), [isFavorite, setFavorite])
+    //- Cantidad total de favoritos
+    const favoritesCount = ids.size
 
-    return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>
+    const value = useMemo(
+        () => ({ isFavorite, setFavorite, favoritesCount }), 
+        [isFavorite, setFavorite, favoritesCount]
+    )
+
+    return (
+        <FavoritesContext.Provider value={value}>
+            {children}
+        </FavoritesContext.Provider>
+    )
 }
 
 export function useFavorites() {

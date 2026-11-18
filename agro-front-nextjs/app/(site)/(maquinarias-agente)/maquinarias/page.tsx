@@ -6,10 +6,10 @@ export const metadata: Metadata = {
     description:
         "Tractores, cosechadoras y equipos agrícolas publicados por productores y empresas de toda la región.",
     //- Todas las combinaciones de filtros apuntan a esta URL: no compiten entre sí en Google
-    alternates: { canonical: "/catalogo" },
+    alternates: { canonical: "/maquinarias" },
 }
 
-export default function CatalogoPage({ searchParams }: {
+export default function maquinariasPage({ searchParams }: {
     searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   return <CatalogShell country={null} searchParams={searchParams} />

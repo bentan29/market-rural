@@ -139,16 +139,6 @@ export default function VenderPage() {
         </div>
       </section>
 
-      {/* 4. Cierre */}
-      <section className="bg-teal-950">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-16 text-white md:px-16">
-          <h2 className="max-w-xl text-balance text-3xl font-bold tracking-tight md:text-4xl">
-            ¿Listo para publicar{" "}
-            <span className="text-lime-400">tu primera máquina?</span>
-          </h2>
-          <SellCta tone="banner" />
-        </div>
-      </section>
     </>
   )
 }

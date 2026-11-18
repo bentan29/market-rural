@@ -393,7 +393,7 @@ export class ListingsService {
 
     //* ========== RUTAS PUBLICAS ==================================================================================================================================
 
-    //? ---- Catalogo de todas las maquinas
+    //? ---- maquinarias de todas las maquinas
     async findPublic(query: ListingsQueryDto) {
 
         const {

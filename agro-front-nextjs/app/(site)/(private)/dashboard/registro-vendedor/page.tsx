@@ -37,8 +37,8 @@ async function SellerGate() {
 
 export default function RegistroVendedorPage() {
   return (
-    <div className="mx-auto w-full max-w-xl rounded-xl bg-teal-950 p-4 md:p-6">
-      <Suspense fallback={<div className="h-128 rounded-xl border border-white/15 bg-white/5" />}>
+    <div className="mx-auto w-full max-w-xl rounded-sm bg-teal-950/20 p-4 md:p-6">
+      <Suspense fallback={<div className="h-128 rounded-sm border border-white/15 bg-white/5" />}>
         <SellerGate />
       </Suspense>
     </div>

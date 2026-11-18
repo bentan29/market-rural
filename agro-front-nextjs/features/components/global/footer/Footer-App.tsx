@@ -12,10 +12,10 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     {
         title: "Comprar",
         links: [
-        { label: "Todo el catálogo", href: "/catalogo" },
+        { label: "Todo el catálogo", href: "/maquinarias" },
         ...CATALOG_COUNTRIES.map((country) => ({
             label: `Maquinaria en ${country.name}`,
-            href: `/catalogo/${country.slug}`,
+            href: `/maquinarias/${country.slug}`,
         })),
         ],
     },
@@ -79,7 +79,7 @@ export function FooterApp() {
 
                     <div className="flex flex-wrap gap-3">
                         <Link
-                            href="/catalogo"
+                            href="/maquinarias"
                             className="inline-flex h-11 items-center rounded-sm bg-brand px-6 text-sm font-semibold text-brand-foreground outline-none hover:bg-brand-hover focus-visible:ring-2 focus-visible:ring-lime-400/60"
                         >
                             Ver catálogo

@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState } from "react"
@@ -5,10 +6,11 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
     ArrowDown01Icon,
-    Home05Icon,
+    DashboardSquare01Icon,
     Logout01Icon,
-    SendIcon,
     TractorIcon,
+    SendIcon,
+    UserCircleIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useAuth } from "@/features/providers/AuthProvider"
@@ -24,30 +26,30 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 const ROLE_LABEL: Record<SessionUser["role"], string> = {
-    USER: "Usuario",
+    USER: "Cuenta personal",
     SELLER: "Vendedor",
     ADMIN: "Administrador",
 }
 
-//- "Juan Pérez" -> "JP", "juan@mail.com" -> "J"
 function getInitials(name: string) {
     const parts = name.trim().split(/\s+/).filter(Boolean)
-    if (parts.length === 0) return "?"
+
+    if (!parts.length) return "?"
     if (parts.length === 1) return parts[0][0].toUpperCase()
+
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-//- Base UI marca el item resaltado con data-highlighted; los focus: cubren otras variantes
-const itemClass =
-    "cursor-pointer gap-2.5 rounded-sm px-2.5 py-2 text-sm text-white/85 focus:bg-white/10 focus:text-white data-highlighted:bg-white/10 data-highlighted:text-white"
-
-const iconClass = "shrink-0 text-white/60"
+const itemClass = cn(
+    "group flex cursor-pointer items-center gap-3 rounded-sm px-2.5 py-2.5",
+    "text-sm text-foreground outline-none transition-all duration-150",
+    "hover:bg-muted focus:bg-muted data-highlighted:bg-muted"
+)
 
 export const DropdownLogged = () => {
-
     const { user, logout } = useAuth()
-
     const router = useRouter()
+
     const [isLoggingOut, setIsLoggingOut] = useState(false)
 
     const onLogout = async () => {
@@ -72,89 +74,155 @@ export const DropdownLogged = () => {
 
     return (
         <DropdownMenu>
+            {/* Trigger */}
             <DropdownMenuTrigger
                 className={cn(
-                    "group flex items-center gap-2.5 rounded-sm border border-white/15 bg-white/10 py-1 pr-2.5 pl-1 text-white outline-none transition-colors",
-                    "hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-brand/60",
-                    "data-popup-open:bg-white/15 data-[state=open]:bg-white/15"
+                    "group flex items-center gap-2.5 rounded-sm p-1.5",
+                    "text-white outline-none transition-colors",
+                    "hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-brand/60",
+                    "data-popup-open:bg-white/10"
                 )}
             >
-                <span className="flex size-8 items-center justify-center rounded-sm bg-brand text-xs font-bold text-brand-foreground">
+                <span className="relative flex size-9 shrink-0 items-center justify-center rounded-sm bg-brand text-sm font-bold text-brand-foreground">
                     {initials}
+
+                    <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-teal-800 bg-lime-400" />
                 </span>
 
-                <span className="hidden min-w-0 flex-col text-left leading-tight sm:flex">
-                    <span className="max-w-32 truncate text-sm font-medium">{displayName}</span>
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-lime-400">
+                <span className="hidden min-w-0 flex-col items-start sm:flex">
+                    <span className="max-w-32 truncate text-sm font-semibold">
+                        {displayName}
+                    </span>
+
+                    <span className="text-[11px] text-white/60">
                         {roleLabel}
                     </span>
                 </span>
 
                 <HugeiconsIcon
                     icon={ArrowDown01Icon}
-                    size={16}
-                    className="text-white/60 transition-transform duration-200 group-data-popup-open:rotate-180 group-data-[state=open]:rotate-180"
+                    size={15}
+                    className="text-white/50 transition-transform duration-200 group-data-popup-open:rotate-180"
                 />
             </DropdownMenuTrigger>
 
+            {/* Dropdown */}
             <DropdownMenuContent
                 align="end"
-                className="w-64 rounded-sm border border-white/15 bg-teal-950 p-1 text-white shadow-2xl ring-0"
+                sideOffset={12}
+                className="w-72.5 overflow-hidden rounded-md border border-border/70 bg-popover p-1.5 text-popover-foreground shadow-2xl shadow-black/10"
             >
-                {/* Cabecera: quién está logueado */}
-                <div className="flex items-center gap-3 border-b border-white/10 p-3">
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-sm bg-brand text-sm font-bold text-brand-foreground">
+                {/* User header */}
+                <div className="relative flex items-center gap-3 overflow-hidden rounded-sm bg-muted/60 p-3">
+                    <span className="flex size-12 shrink-0 items-center justify-center rounded-sm bg-brand text-base font-bold text-brand-foreground">
                         {initials}
                     </span>
 
-                    <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold">{displayName}</p>
-                        <p className="truncate text-xs text-white/60">{user.email}</p>
-                        <span className="mt-1.5 inline-block rounded-xs bg-brand px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-brand-foreground">
+                    <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold tracking-tight">
+                            {displayName}
+                        </p>
+
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                            {user.email}
+                        </p>
+
+                        <span className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-brand">
+                            <span className="size-1.5 rounded-full bg-brand" />
                             {roleLabel}
                         </span>
                     </div>
                 </div>
 
-                <DropdownMenuGroup className="py-1">
+                {/* Navigation */}
+                <div className="px-2 pb-1 pt-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                        Espacio de trabajo
+                    </p>
+                </div>
 
-                    <DropdownMenuItem render={<Link href="/dashboard" />} className={itemClass}>
-                        <HugeiconsIcon icon={Home05Icon} size={18} className={iconClass} />
-                        Mi panel
+                <DropdownMenuGroup>
+                    <DropdownMenuItem
+                        render={<Link href="/dashboard" />}
+                        className={itemClass}
+                    >
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-muted transition-colors group-hover:bg-background">
+                            <HugeiconsIcon
+                                icon={DashboardSquare01Icon}
+                                size={19}
+                                className="text-muted-foreground"
+                            />
+                        </span>
+
+                        <span className="flex-1 font-medium">
+                            Mi panel
+                        </span>
                     </DropdownMenuItem>
 
-                    {/* Según el rol: el vendedor gestiona publicaciones, el usuario puede pasar a vender */}
                     {user.role === "SELLER" && (
-                        <DropdownMenuItem render={<Link href="/dashboard/publicaciones" />} className={itemClass}>
-                            <HugeiconsIcon icon={TractorIcon} size={18} className={iconClass} />
-                            Mis publicaciones
+                        <DropdownMenuItem
+                            render={<Link href="/dashboard/publicaciones" />}
+                            className={itemClass}
+                        >
+                            <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-muted transition-colors group-hover:bg-background">
+                                <HugeiconsIcon
+                                    icon={TractorIcon}
+                                    size={19}
+                                    className="text-muted-foreground"
+                                />
+                            </span>
+
+                            <span className="flex-1 font-medium">
+                                Mis publicaciones
+                            </span>
                         </DropdownMenuItem>
                     )}
 
                     {user.role === "USER" && (
-                        <DropdownMenuItem render={<Link href="/dashboard/registro-vendedor" />} className={itemClass}>
-                            <HugeiconsIcon icon={SendIcon} size={18} className="shrink-0 text-lime-400" />
-                            Quiero vender
+                        <DropdownMenuItem
+                            render={<Link href="/dashboard/registro-vendedor" />}
+                            className={itemClass}
+                        >
+                            <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-brand/10 transition-colors group-hover:bg-brand/15">
+                                <HugeiconsIcon
+                                    icon={SendIcon}
+                                    size={19}
+                                    className="text-brand"
+                                />
+                            </span>
+
+                            <span className="flex-1 font-medium">
+                                Quiero vender
+                            </span>
                         </DropdownMenuItem>
                     )}
-
                 </DropdownMenuGroup>
 
-                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuSeparator className="mx-1 my-1.5 bg-border/60" />
 
-                <DropdownMenuGroup className="pt-1">
+                {/* Logout */}
+                <DropdownMenuItem
+                    onClick={onLogout}
+                    disabled={isLoggingOut}
+                    className={cn(
+                        "flex cursor-pointer items-center gap-3 rounded-sm px-2.5 py-2.5",
+                        "text-sm text-muted-foreground outline-none transition-colors",
+                        "hover:bg-destructive/5 hover:text-destructive",
+                        "focus:bg-destructive/5 focus:text-destructive",
+                        "data-highlighted:bg-destructive/5 data-highlighted:text-destructive"
+                    )}
+                >
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-muted">
+                        <HugeiconsIcon
+                            icon={Logout01Icon}
+                            size={19}
+                        />
+                    </span>
 
-                    {/* Base UI usa onClick; onSelect es de Radix y acá se ignora */}
-                    <DropdownMenuItem
-                        onClick={onLogout}
-                        disabled={isLoggingOut}
-                        className="cursor-pointer gap-2.5 rounded-sm px-2.5 py-2 text-sm text-red-300 focus:bg-red-500/10 focus:text-red-200 data-highlighted:bg-red-500/10 data-highlighted:text-red-200"
-                    >
-                        <HugeiconsIcon icon={Logout01Icon} size={18} className="shrink-0" />
+                    <span className="font-medium">
                         {isLoggingOut ? "Cerrando sesión..." : "Cerrar sesión"}
-                    </DropdownMenuItem>
-
-                </DropdownMenuGroup>
+                    </span>
+                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     )

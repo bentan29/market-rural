@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
     return {
         title: `Maquinaria agrícola en ${country.name}`,
         description: `Tractores, cosechadoras y equipos agrícolas en venta y alquiler en ${country.name}.`,
-        alternates: { canonical: `/catalogo/${country.slug}` },
+        alternates: { canonical: `/maquinarias/${country.slug}` },
     }
 }
 
@@ -31,7 +31,7 @@ async function CountryCatalog({ params, searchParams }: Props) {
     return <CatalogShell country={country} searchParams={searchParams} />
 }
 
-export default function CatalogoPaisPage(props: Props) {
+export default function maquinariasPaisPage(props: Props) {
     return (
         <Suspense fallback={<div className="h-40 animate-pulse rounded-sm bg-muted" />}>
             <CountryCatalog {...props} />

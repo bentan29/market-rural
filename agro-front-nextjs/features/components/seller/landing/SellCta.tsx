@@ -21,7 +21,7 @@ function resolveCta(user: SessionUser | null): Cta {
       href: "/registrarme",
       label: "Crear mi cuenta",
       hint: "¿Ya tenés cuenta?",
-      login: { href: "/iniciar-sesion?next=/vender", label: "Ingresá" },
+      login: { href: "/login?next=/vender", label: "Ingresá" },
     }
   }
 
@@ -35,7 +35,7 @@ function resolveCta(user: SessionUser | null): Cta {
 
   if (user.role === "USER") {
     return {
-      href: "/dashboard/registro-usuario",
+      href: "/dashboard/registro-vendedor",
       label: "Crear mi perfil de vendedor",
       hint: "Ya tenés cuenta: solo te falta completar tus datos de vendedor.",
     }

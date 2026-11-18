@@ -51,7 +51,7 @@ export const BannerHomeApp = () => {
                         size="lg"
                         className="bg-brand text-brand-foreground hover:bg-brand-hover"
                     >
-                        <Link href="/catalogo">Ver catálogo</Link>
+                        <Link href="/maquinarias">Ver catálogo</Link>
                     </Button>
                     <Button
                         size="lg"

@@ -114,11 +114,11 @@ async function ListingDetail({ params }: Props) {
             />
 
             <nav aria-label="Ruta" className="mb-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <Link href="/catalogo" className="hover:text-foreground hover:underline">Catálogo</Link>
+                <Link href="/maquinarias" className="hover:text-foreground hover:underline">Catálogo</Link>
                 {country && (
                     <>
                         <span aria-hidden>/</span>
-                        <Link href={`/catalogo/${country.slug}`} className="hover:text-foreground hover:underline">
+                        <Link href={`/maquinarias/${country.slug}`} className="hover:text-foreground hover:underline">
                             {country.name}
                         </Link>
                     </>

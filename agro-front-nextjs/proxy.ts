@@ -292,7 +292,8 @@ export async function proxy(req: NextRequest) {
     // isLoggedIn: confirmada O probable. Se usa para PROTEGER rutas, donde es
     // preferible no sacar a nadie por un fallo pasajero. (Para redirigir fuera
     // del login usamos hasSession, más abajo, para evitar bucles.)
-    const isLoggedIn = hasSession || sessionPending
+    // const isLoggedIn = hasSession || sessionPending
+    const isLoggedIn = hasSession
 
     // ── Helpers de respuesta ──
 

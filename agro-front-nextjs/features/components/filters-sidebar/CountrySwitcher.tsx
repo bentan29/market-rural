@@ -23,8 +23,8 @@ export function CountrySwitcher() {
     const suffix = qs.toString() ? `?${qs}` : ""
 
     const options = [
-        { slug: null, label: "Global", href: `/catalogo${suffix}` },
-        ...CATALOG_COUNTRIES.map((c) => ({ slug: c.slug, label: c.name, href: `/catalogo/${c.slug}${suffix}` })),
+        { slug: null, label: "Global", href: `/maquinarias${suffix}` },
+        ...CATALOG_COUNTRIES.map((c) => ({ slug: c.slug, label: c.name, href: `/maquinarias/${c.slug}${suffix}` })),
     ]
 
     return (
