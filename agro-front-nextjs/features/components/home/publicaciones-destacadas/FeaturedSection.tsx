@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Suspense } from "react"
 import { getFeaturedListings } from "@/features/actions/public/listings/get-featured-listings"
+import { ListingsGrid } from "../../listings/ListingsGrid"
 
 async function FeaturedItems() {
     try {
