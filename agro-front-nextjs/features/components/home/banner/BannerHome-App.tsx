@@ -4,7 +4,7 @@ import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CATALOG_COUNTRIES } from "@/features/constants/catalog/countries"
 import { cn } from "@/lib/utils"
-import { TopographyBackground } from "../../animations/Topography-background"
+import { ContourLayer, TopographyBackground } from "../../animations/Topography-background"
 
 const ACTIONS = [
     {
@@ -44,6 +44,10 @@ export const BannerHomeApp = () => {
             <div className="absolute inset-0 z-0">
                 <TopographyBackground />
             </div>
+
+            {/* 2b. Curvas de nivel del celular: ENCIMA de la foto (si no, la foto las tapa) y debajo del velo */}
+            <ContourLayer className="z-15 md:hidden" />
+                    
 
             {/* 1. Cuadrícula tenue que se desvanece hacia el borde */}
             <div

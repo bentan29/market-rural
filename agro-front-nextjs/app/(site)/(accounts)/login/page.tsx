@@ -1,4 +1,4 @@
-import { TopographyBackground } from "@/features/components/animations/Topography-background";
+import { ContourLayer, TopographyBackground } from "@/features/components/animations/Topography-background";
 import { AuthBackground } from "@/features/components/auth/AuthBackground";
 import { LoginFormApp } from "@/features/components/auth/login/LoginForm-App";
 
@@ -10,6 +10,9 @@ export default function LoginPage() {
             <div className="absolute inset-0 z-0">
                 <TopographyBackground />
             </div>
+
+            {/* 2b. Curvas de nivel del celular: ENCIMA de la foto (si no, la foto las tapa) y debajo del velo */}
+            <ContourLayer className="z-15 md:hidden" />
         
             <div className="relative z-10 w-full max-w-md">
                 <LoginFormApp />
