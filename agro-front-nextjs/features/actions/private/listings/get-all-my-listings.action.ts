@@ -8,7 +8,6 @@ export type MyListingsResponse = {
   items: ListingType[]
   total: number
   page: number
-  pageSize: number
   totalPages: number
 }
 

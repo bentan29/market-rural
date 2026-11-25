@@ -115,6 +115,8 @@ const BASE_PRICES: Record<string, number> = {
     PY: 550000000,
 };
 
+const LISTINGS_PER_SELLER = 100
+
 @Injectable()
 export class SeedService {
     constructor(
@@ -122,14 +124,14 @@ export class SeedService {
     ) {}
 
     async runSeed() {
-        // await this.seedPlans();
-        await this.seedSellersAndListings();
+        await this.seedPlans();
+        // await this.seedSellersAndListings();
 
-        return {
-            message: 'Seed completado ✅',
-            sellers: 4,
-            listings: 400,
-        };
+        // return {
+        //     message: 'Seed completado ✅',
+        //     sellers: SELLERS.length,
+        //     listings: SELLERS.length * LISTINGS_PER_SELLER,
+        // };
     }
 
     private async seedPlans() {
@@ -320,5 +322,8 @@ export class SeedService {
             expiresAt: null,
         },
     });
-}
+    }
+
+
+
 }

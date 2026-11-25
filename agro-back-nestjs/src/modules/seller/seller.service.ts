@@ -5,7 +5,6 @@ import { Prisma, Role, SubscriptionStatus } from '@prisma/client'
 import { uniqueSlug } from 'src/common/utils/slug.util'
 import { CreateSellerDto } from './dto/create-seller.dto'
 import { PrismaService } from 'src/core/prisma/prisma.module'
-import { SubscriptionService } from '../subscription/subscription.service'
 import { DEFAULT_SELLER_PLAN } from 'src/common/constants/plans-name.constants'
 import { publicListingWhere } from 'src/common/utils/listing.util'
 

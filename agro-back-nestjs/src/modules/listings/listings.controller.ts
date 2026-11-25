@@ -12,7 +12,7 @@ import { ChangeListingStatusDto } from './dto/change-listing-status.dto';
 @Controller('listings')
 export class ListingsController {
 
-  constructor(private readonly listingsService: ListingsService) {}
+  constructor(private readonly listingsService: ListingsService) { }
 
   //! ================ RUTAS PRIVADAS ================
   //- Creamos publicacion
@@ -20,6 +20,14 @@ export class ListingsController {
   @UseGuards(AuthGuard(), SellerGuard)
   create(@CurrentSeller() sellerId: string, @Body() dto: CreateListingDto) {
     return this.listingsService.create(sellerId, dto)
+  }
+
+  //- Firma para subir fotos directo a Cloudinary
+  @Post('images/signature')
+  @HttpCode(200)
+  @UseGuards(AuthGuard(), SellerGuard)
+  imageSignature(@CurrentSeller() sellerId: string) {
+    return this.listingsService.imageSignature(sellerId)
   }
 
   //- Tomamos todas nuestras publicaciones
@@ -55,8 +63,8 @@ export class ListingsController {
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'), SellerGuard)
   update(
-    @CurrentSeller() sellerId: string, 
-    @Param('id') id: string, 
+    @CurrentSeller() sellerId: string,
+    @Param('id') id: string,
     @Body() dto: UpdateListingDto
   ) {
     return this.listingsService.update(sellerId, id, dto)

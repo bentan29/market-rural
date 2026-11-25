@@ -5,6 +5,7 @@ import { MACHINE_GROUPS, type MachineItem } from "@/features/constants/products/
 import { catalogParsers } from "@/features/Nuqs/catalog/catalog-search-params"
 import { ListingsGrid } from "../listings/ListingsGrid"
 import { PaginationApp } from "../global/pagination/Pagination-App"
+import { UrlSortSelect } from "../global/sort/UrlSortSelect-App"
 
 const cache = createSearchParamsCache(catalogParsers)
 
@@ -91,10 +92,14 @@ export async function CatalogResults({ scope, basePath, countLabel = "", searchP
     return (
       <div className="space-y-4">
 
-        <p className="text-sm text-muted-foreground">
-          {total} {total === 1 ? "máquina" : "máquinas"}
-          {countLabel}
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-muted-foreground">
+            {total} {total === 1 ? "máquina" : "máquinas"}
+            {countLabel}
+          </p>
+
+          <UrlSortSelect />
+        </div>
 
         <ListingsGrid listings={items} />
 

@@ -2,13 +2,15 @@ import { UpdateListingDto } from './dto/update-listing.dto';
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/core/prisma/prisma.module';
 import { CreateListingDto } from './dto/create-listing.dto';
-import { Currency, ListingOperation, ListingStatus, Prisma, RentPeriod,} from '@prisma/client';
+import { Currency, ListingOperation, ListingStatus, Prisma, RentPeriod, } from '@prisma/client';
 import { randomSuffix, slugify } from 'src/common/utils/slug.util';
 import { isSubscriptionActive } from 'src/common/utils/suscription.util';
 import { ListingsQueryDto, ListingsSort } from './dto/listings-query.dto';
-import { isFeatured, publicListingWhere } from 'src/common/utils/listing.util';
+import { isFeatured, LISTING_CARD_SELECT, publicListingWhere, toListingCard } from 'src/common/utils/listing.util';
 import { PrivateListingsDto } from './dto/private-listings.dto';
-import { FEATURED_NO_EXPIRY } from 'src/common/constants/listing.constants';
+import { FEATURED_NO_EXPIRY, MAX_LISTING_IMAGES } from 'src/common/constants/listing.constants';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { ListingImageInputDto } from './dto/listing-image-input.dto';
 
 //* Ordenamiento
 const ORDER_BY: Record<ListingsSort, Prisma.ListingOrderByWithRelationInput[]> = {
@@ -34,32 +36,12 @@ function range(from?: number, to?: number) {
     }
 }
 
-//*- Los campos que muestran las tarjetas del catálogo y de la home
-const CARD_SELECT = {
-    id: true,
-    slug: true,
-    title: true,
-    operation: true,
-    rentPeriod: true,
-    condition: true,
-    currency: true,
-    price: true,
-    machineType: true,
-    year: true,
-    hours: true,
-    horsepower: true,
-    location: true,
-    country: true,
-    createdAt: true,
-    featuredUntil: true,
-    seller: { select: { displayName: true, slug: true } },
-} satisfies Prisma.ListingSelect
 
 function shuffle<T>(list: T[]): T[] {
     const copy = [...list]
     for (let i = copy.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
-        ;[copy[i], copy[j]] = [copy[j], copy[i]]
+            ;[copy[i], copy[j]] = [copy[j], copy[i]]
     }
     return copy
 }
@@ -67,13 +49,19 @@ function shuffle<T>(list: T[]): T[] {
 @Injectable()
 export class ListingsService {
 
-    constructor(private readonly prismaClient: PrismaService) {}
+    constructor(
+        private readonly prismaClient: PrismaService,
+        private readonly cloudinary: CloudinaryService,
+    ) { }
 
     //! ========== RUTAS PRIVADAS ==================================================================================================================================
-        
+
     //? --- Crear una publicacion
     async create(sellerId: string, dto: CreateListingDto) {
-        
+
+        //- Las fotos no son columnas de Listing: se separan del resto
+        const { newImages = [], ...data } = dto
+
         //- Suscripción (con el tope del plan) y cantidad ya publicada, en paralelo
         const [sub, total] = await Promise.all([
             //- Buscamos en la suscripcion el plan
@@ -99,16 +87,35 @@ export class ListingsService {
             throw new ForbiddenException('Alcanzaste el límite de publicaciones de tu plan')
         }
 
-        //- Creamos la nueva publicación
-        return this.prismaClient.listing.create({
-            data: {
-                ...dto,
-                status: ListingStatus.PUBLISHED,
-                rentPeriod: dto.operation === ListingOperation.RENT ? dto.rentPeriod : null,
-                slug: `${slugify(dto.title) || 'publicacion'}-${randomSuffix()}`,
-                sellerId,
-            },
-        })
+        this.assertValidImages(sellerId, newImages)
+
+        try {
+            const listing = await this.prismaClient.listing.create({
+                data: {
+                    ...data,
+                    status: ListingStatus.PUBLISHED,
+                    rentPeriod: data.operation === ListingOperation.RENT ? data.rentPeriod : null,
+                    slug: `${slugify(data.title) || 'publicacion'}-${randomSuffix()}`,
+                    sellerId,
+                    images: {
+                        create: newImages.map((image, position) => ({
+                            publicId: image.publicId,
+                            width: image.width,
+                            height: image.height,
+                            position,
+                        })),
+                    },
+                },
+            })
+
+            //- Ya están en uso: se les quita la etiqueta para que la limpieza no las toque
+            await this.cloudinary.untag(newImages.map((image) => image.publicId))
+
+            return listing
+        } catch (error) {
+            if (this.isUniqueViolation(error)) throw new ConflictException('Una de las fotos ya está en uso')
+            throw error
+        }
     }
 
     //? --- Todas mis Publicaciiones del vendedor
@@ -116,14 +123,14 @@ export class ListingsService {
 
         const now = new Date()
 
-        const {q, status, operation, sort} = query
+        const { q, status, operation, sort } = query
 
         const page = query.page ?? 1
         const limit = query.limit ?? 8
         const skip = (page - 1) * limit
 
         //- Cada filtro es un elemento del AND: se combinan sin pisarse las claves
-        const filters: Prisma.ListingWhereInput[] = [{sellerId}]
+        const filters: Prisma.ListingWhereInput[] = [{ sellerId }]
 
         if (q) {
             filters.push({
@@ -134,9 +141,9 @@ export class ListingsService {
             })
         }
 
-        if(status?.length) filters.push({status: {in: status}})
-        if(operation?.length) filters.push({operation: {in: operation}})
-            
+        if (status?.length) filters.push({ status: { in: status } })
+        if (operation?.length) filters.push({ operation: { in: operation } })
+
         const where: Prisma.ListingWhereInput = { AND: filters }
 
         const [items, total] = await Promise.all([
@@ -159,27 +166,29 @@ export class ListingsService {
                     hours: true,
                     location: true,
                     status: true,
-                    featuredUntil:true,
+                    featuredUntil: true,
                     country: true,
                     createdAt: true,
+                    images: {
+                        select: { id: true, publicId: true, width: true, height: true },
+                        orderBy: { position: 'asc' },
+                    },
                 },
             }),
             this.prismaClient.listing.count({ where }),
         ])
 
         return {
-            items: items.map(({ featuredUntil, price, ...listing }) => {
-                const featured = isFeatured(featuredUntil, now)
+            items: items.map(({ featuredUntil, price, images, ...listing }) => {
                 return {
                     ...listing,
                     price: Number(price),
-                    featured,
-                    featuredUntil: featured ? featuredUntil : null, // solo si sigue vigente
+                    featured: isFeatured(featuredUntil, now),
+                    coverImageId: images[0]?.publicId ?? null,
                 }
             }),
             total,
             page,
-            pageSize: limit,
             totalPages: Math.ceil(total / limit),
         }
     }
@@ -188,23 +197,23 @@ export class ListingsService {
     async feature(sellerId: string, listingId: string) {
         const now = new Date()
 
-        return this.prismaClient.$transaction(async(tx) => {
-    
+        return this.prismaClient.$transaction(async (tx) => {
+
             //  FOR UPDATE le dice a Postgres: “traeme esta fila y bloqueala: 
             //  nadie más puede bloquearla o modificarla hasta que termine mi transacción”. 
             //  Si otra transacción intenta el mismo SELECT ... FOR UPDATE sobre esa misma fila, 
             //  espera a que la primera termine
-            await tx.$queryRaw `SELECT id FROM "Seller" WHERE id = ${sellerId} FOR UPDATE`
+            await tx.$queryRaw`SELECT id FROM "Seller" WHERE id = ${sellerId} FOR UPDATE`
 
             //- Buscamos la publicacion que vamos a actualizar
             const listing = await tx.listing.findFirst({
-                where: {id: listingId, sellerId},
-                select: {id: true, status: true, featuredUntil: true}
+                where: { id: listingId, sellerId },
+                select: { id: true, status: true, featuredUntil: true }
             })
-            if(!listing) throw new NotFoundException('Publicación no encontrada')
+            if (!listing) throw new NotFoundException('Publicación no encontrada')
 
             //- Si la publicacion no esta activa
-            if(listing.status !== ListingStatus.PUBLISHED) {
+            if (listing.status !== ListingStatus.PUBLISHED) {
                 throw new BadRequestException('Solo se pueden destacar publicaciones activas')
             }
 
@@ -220,7 +229,7 @@ export class ListingsService {
                     status: true,
                     expiresAt: true,
                     plan: {
-                        select: {maxFeatured: true}
+                        select: { maxFeatured: true }
                     }
                 }
             })
@@ -235,11 +244,11 @@ export class ListingsService {
 
             //- Tomamos la publicaciones destacadas activas
             const used = await tx.listing.count({
-                where: {sellerId, featuredUntil: {gt: now}}
+                where: { sellerId, featuredUntil: { gt: now } }
             })
 
             //- Si ya tenemos la cantidad limitada por el plan
-            if(used >= sub.plan.maxFeatured) {
+            if (used >= sub.plan.maxFeatured) {
                 throw new ForbiddenException(
                     `Alcanzaste el límite de ${sub.plan.maxFeatured} destacadas de tu plan`,
                 )
@@ -249,9 +258,9 @@ export class ListingsService {
             const featuredUntil = sub.expiresAt ?? FEATURED_NO_EXPIRY
 
             //- Actualizamos
-            await tx.listing.update({ 
-                where: { id: listing.id }, 
-                data: { featuredUntil } 
+            await tx.listing.update({
+                where: { id: listing.id },
+                data: { featuredUntil }
             })
 
             return { featuredUntil }
@@ -262,10 +271,10 @@ export class ListingsService {
     //? --- Quitar el destacado: libera el cupo al instante
     async unfeature(sellerId: string, listingId: string) {
         const { count } = await this.prismaClient.listing.updateMany({
-            where: { 
-                id: listingId, 
-                sellerId, 
-                featuredUntil: { not: null } 
+            where: {
+                id: listingId,
+                sellerId,
+                featuredUntil: { not: null }
             },
             data: { featuredUntil: null }, //- Pasamos a nulo
         })
@@ -285,9 +294,13 @@ export class ListingsService {
                 condition: true, currency: true, price: true, machineType: true, year: true,
                 hours: true, horsepower: true, location: true, country: true,
                 description: true, status: true, featuredUntil: true, createdAt: true,
+                images: {
+                    select: { id: true, publicId: true, width: true, height: true },
+                    orderBy: { position: 'asc' },
+                },
             },
         })
-        if(!listing) throw new NotFoundException('Publicacion no encontrada')
+        if (!listing) throw new NotFoundException('Publicacion no encontrada')
 
         const { featuredUntil, price, ...rest } = listing
         const featured = isFeatured(featuredUntil, now)
@@ -301,33 +314,84 @@ export class ListingsService {
     }
 
     //? --- Editamos una publicacion propia
-    async update (sellerId: string, listingId: string, dto: UpdateListingDto) {
+    //? --- Editamos una publicacion propia (datos y fotos)
+    async update(sellerId: string, listingId: string, dto: UpdateListingDto) {
+        const { newImages = [], removeImageIds = [], ...fields } = dto
+
         //- El where con sellerId evita editar publicaciones ajenas
-        const currentLinsting = await this.prismaClient.listing.findFirst({
-            where: {id: listingId, sellerId},
-            select: {operation: true, rentPeriod: true, status: true}
+        const current = await this.prismaClient.listing.findFirst({
+            where: { id: listingId, sellerId },
+            select: {
+                operation: true,
+                rentPeriod: true,
+                status: true,
+                images: { select: { id: true, publicId: true, position: true } },
+            },
         })
-        if (!currentLinsting) throw new NotFoundException('Publicación no encontrada')
+        if (!current) throw new NotFoundException('Publicación no encontrada')
 
-        // const closed = currentLinsting.status === ListingStatus.SOLD || currentLinsting.status === ListingStatus.RENTED
-        // if (closed && dto.operation && dto.operation !== currentLinsting.operation) {
-        //     throw new BadRequestException('Volvé a publicarla antes de cambiar la operación')
-        // }
-
-        //- La regla "en alquiler hace falta el período" se valida sobre el estado final
-        const operation = dto.operation ?? currentLinsting.operation
-        let rentPeriod: RentPeriod | null = null
-
-        if(operation === ListingOperation.RENT) {
-            rentPeriod = dto.rentPeriod ?? currentLinsting.rentPeriod
+        //- Las fotos a quitar tienen que ser de esta publicación
+        const toRemove = current.images.filter((image) => removeImageIds.includes(image.id))
+        if (toRemove.length !== new Set(removeImageIds).size) {
+            throw new BadRequestException('Alguna foto a quitar no pertenece a esta publicación')
         }
 
-        //- El slug no cambia aunque cambie el título: los links ya compartidos siguen funcionando
-        return this.prismaClient.listing.update({
-            where: { id: listingId },
-            data: { ...dto, operation, rentPeriod },
-            select: { id: true, slug: true },
-        })
+        if (current.images.length - toRemove.length + newImages.length > MAX_LISTING_IMAGES) {
+            throw new BadRequestException(`Podés tener hasta ${MAX_LISTING_IMAGES} fotos`)
+        }
+        this.assertValidImages(sellerId, newImages)
+
+        //- La regla "en alquiler hace falta el período" se valida sobre el estado final
+        const operation = fields.operation ?? current.operation
+        let rentPeriod: RentPeriod | null = null
+        if (operation === ListingOperation.RENT) {
+            rentPeriod = fields.rentPeriod ?? current.rentPeriod
+        }
+
+        //- Las fotos nuevas se agregan después de las que ya había
+        const nextPosition = current.images.reduce((max, image) => Math.max(max, image.position), -1) + 1
+
+        try {
+            //- El slug no cambia aunque cambie el título: los links ya compartidos siguen funcionando
+            const updated = await this.prismaClient.$transaction(async (tx) => {
+                if (toRemove.length > 0) {
+                    await tx.listingImage.deleteMany({
+                        where: { id: { in: toRemove.map((image) => image.id) }, listingId },
+                    })
+                }
+
+                return tx.listing.update({
+                    where: { id: listingId },
+                    data: {
+                        ...fields,
+                        operation,
+                        rentPeriod,
+                        ...(newImages.length > 0 && {
+                            images: {
+                                create: newImages.map((image, i) => ({
+                                    publicId: image.publicId,
+                                    width: image.width,
+                                    height: image.height,
+                                    position: nextPosition + i,
+                                })),
+                            },
+                        }),
+                    },
+                    select: { id: true, slug: true },
+                })
+            })
+
+            //- Fuera de la transacción: si Cloudinary falla, el cambio no se pierde (el error queda en el log)
+            await Promise.all([
+                this.cloudinary.destroy(toRemove.map((image) => image.publicId)),
+                this.cloudinary.untag(newImages.map((image) => image.publicId)),
+            ])
+
+            return updated
+        } catch (error) {
+            if (this.isUniqueViolation(error)) throw new ConflictException('Una de las fotos ya está en uso')
+            throw error
+        }
     }
 
 
@@ -377,7 +441,7 @@ export class ListingsService {
     }
 
 
-    //! Esta funcion no esta en uso aun, la vamos a usar cuando renovemos el plan con los pagos
+    //! --- Esta funcion no esta en uso aun, la vamos a usar cuando renovemos el plan con los pagos
     //- Al renovar: las destacadas vigentes siguen hasta el nuevo vencimiento
     async extendFeatured(
         sellerId: string,
@@ -388,6 +452,27 @@ export class ListingsService {
             where: { sellerId, featuredUntil: { gt: new Date() } },
             data: { featuredUntil: newExpiresAt ?? FEATURED_NO_EXPIRY },
         })
+    }
+
+    //! --- Firma para subir fotos directo a Cloudinary
+    imageSignature(sellerId: string) {
+        return this.cloudinary.signUpload(sellerId)
+    }
+
+    //! --- Las fotos tienen que ser de este vendedor y no repetirse
+    private assertValidImages(sellerId: string, images: ListingImageInputDto[]) {
+        if (new Set(images.map((image) => image.publicId)).size !== images.length) {
+            throw new BadRequestException('Hay fotos repetidas')
+        }
+        for (const image of images) {
+            if (!this.cloudinary.isValidUpload(sellerId, image)) {
+                throw new BadRequestException('Una de las fotos no es válida. Volvé a subirla.')
+            }
+        }
+    }
+
+    private isUniqueViolation(error: unknown) {
+        return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
     }
 
 
@@ -426,7 +511,7 @@ export class ListingsService {
         if (condition?.length) filters.push({ condition: { in: condition } })
         if (country) filters.push({ country })
 
-       const year = range(yearFrom, yearTo)
+        const year = range(yearFrom, yearTo)
         if (year) filters.push({ year })
 
         //- Los precios solo se comparan dentro de una misma moneda
@@ -454,21 +539,16 @@ export class ListingsService {
                 orderBy,
                 skip,
                 take: limit,
-                select: CARD_SELECT,
+                select: LISTING_CARD_SELECT,
             }),
             this.prismaClient.listing.count({ where }),
         ])
 
         return {
             //- featuredUntil no sale al público: se convierte en un booleano. Decimal se serializa como string: se pasa a número
-            items: items.map(({ featuredUntil, price, ...listing }) => ({
-                ...listing,
-                price: Number(price),
-                featured: isFeatured(featuredUntil, now),
-            })),
+            items: items.map(({ ...listing }) => toListingCard(listing, now)),
             total,
             page,
-            pageSize: limit,
             totalPages: Math.ceil(total / limit),
         }
 
@@ -498,6 +578,10 @@ export class ListingsService {
                 description: true,
                 featuredUntil: true,
                 createdAt: true,
+                images: {
+                    select: { publicId: true, width: true, height: true },
+                    orderBy: { position: 'asc' },
+                },
                 seller: {
                     select: {
                         displayName: true,
@@ -536,7 +620,7 @@ export class ListingsService {
             where: { AND: [publicListingWhere(now), { featuredUntil: { gt: now } }] },
             orderBy: { updatedAt: 'desc' },
             take: take * 3,
-            select: CARD_SELECT,
+            select: LISTING_CARD_SELECT,
         })
 
         return shuffle(items)
@@ -548,6 +632,6 @@ export class ListingsService {
             }))
     }
 
-    
+
 }
 

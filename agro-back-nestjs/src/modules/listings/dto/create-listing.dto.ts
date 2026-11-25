@@ -1,11 +1,16 @@
 import { Transform, Type } from 'class-transformer'
 import {
+    ArrayMaxSize,
+    IsArray,
     IsEnum, IsIn, IsInt, IsNumber, IsOptional, IsPositive, IsString,
     Max, MaxLength, Min, MinLength, ValidateIf,
+    ValidateNested,
 } from 'class-validator'
 import { Currency, ListingOperation, MachineCondition, RentPeriod } from '@prisma/client'
 import { MACHINE_TYPES } from 'src/common/constants/machine-types'
 import { SELLER_COUNTRIES } from 'src/common/constants/seller.constants'
+import { MAX_LISTING_IMAGES } from 'src/common/constants/listing.constants'
+import { ListingImageInputDto } from './listing-image-input.dto'
 
 
 const trim = () =>
@@ -14,6 +19,13 @@ const trim = () =>
 const MAX_YEAR = new Date().getFullYear() + 1
 
 export class CreateListingDto {
+
+    @IsOptional()
+    @IsArray()
+    @ArrayMaxSize(MAX_LISTING_IMAGES, { message: `Máximo ${MAX_LISTING_IMAGES} fotos` })
+    @ValidateNested({ each: true })
+    @Type(() => ListingImageInputDto)
+    newImages?: ListingImageInputDto[]
 
     @trim()
     @IsString()

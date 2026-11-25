@@ -17,6 +17,8 @@ import { getMachineLabel } from "@/features/constants/products/type-machine.cons
 import { getListingDetails } from "@/features/actions/public/listings/get-listing-detail"
 import { telUrl, whatsappUrl } from "@/features/helpers/contact-phone"
 import { ContactForm } from "@/features/components/listing-details/ContactForm"
+import { ListingGallery } from "@/features/components/listings/ListingGallery"
+import { cloudinaryUrl } from "@/lib/cloudinary"
 
 
 const SLUG_REGEX = /^[a-z0-9-]{1,120}$/
@@ -41,7 +43,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title,
         description,
         alternates: { canonical: `/maquinaria/${listing.slug}` },
-        openGraph: { title, description, type: "website" },
+        openGraph: { 
+            title, 
+            description, 
+            type: "website",
+            images: listing.images[0] ? [{ url: cloudinaryUrl(listing.images[0].publicId) }] : undefined,
+        },
     }
 }
 
@@ -92,6 +99,7 @@ async function ListingDetail({ params }: Props) {
         name: listing.title,
         description: listing.description,
         category,
+        image: listing.images.slice(0, 5).map((image) => cloudinaryUrl(image.publicId)),
         ...(listing.operation === "SALE" && {
             offers: {
                 "@type": "Offer",
@@ -133,20 +141,10 @@ async function ListingDetail({ params }: Props) {
                 {/* Columna principal */}
                 <div className="min-w-0 space-y-8">
                     <div className="relative aspect-4/3 overflow-hidden rounded-sm bg-stone-100">
-                        {listing.imageUrl ? (
-                            <Image
-                                src={listing.imageUrl}
-                                alt={listing.title}
-                                fill
-                                priority
-                                sizes="(min-width: 1024px) 60vw, 100vw"
-                                className="object-cover"
-                            />
-                        ) : (
-                            <div className="grid size-full place-items-center text-stone-300">
-                                <HugeiconsIcon icon={TractorIcon} size={72} strokeWidth={1.2} />
-                            </div>
-                        )}
+                        <ListingGallery
+                            images={listing.images}
+                            title={listing.title}
+                        />
                     </div>
 
                     <header className="space-y-3">
@@ -255,9 +253,9 @@ async function ListingDetail({ params }: Props) {
                     </div>
 
                     <ContactForm
-                        slug={listing.slug} 
-                        listingTitle={listing.title} 
-                        sellerName={seller.displayName} 
+                        slug={listing.slug}
+                        listingTitle={listing.title}
+                        sellerName={seller.displayName}
                     />
                 </aside>
             </div>

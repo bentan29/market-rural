@@ -22,26 +22,8 @@ import {
 } from "./listing-format"
 import { STATUS_CONFIG } from "./inputs-labels"
 import { ListingActions } from "./ListingActions"
-
-//- Hueco de la foto: hoy muestra un ícono; cuando el backend mande imageUrl, se ve la imagen sin tocar nada más
-function Thumb({ listing, className }: { listing: ListingType; className?: string }) {
-  return (
-    <div
-      className={cn(
-        "relative shrink-0 overflow-hidden rounded-md bg-linear-to-br from-teal-50 to-teal-100 ring-1 ring-teal-900/15",
-        className
-      )}
-    >
-      {listing.imageUrl ? (
-        <Image src={listing.imageUrl} alt="" fill sizes="64px" className="object-cover" />
-      ) : (
-        <div className="grid size-full place-items-center text-teal-700/50">
-          <HugeiconsIcon icon={TractorIcon} size={22} strokeWidth={1.4} />
-        </div>
-      )}
-    </div>
-  )
-}
+import { cloudinaryCardLoader } from "@/lib/cloudinary"
+import { ListingThumb } from "./ListingThumb"
 
 function StatusBadges({ listing }: { listing: ListingType }) {
   const status = STATUS_CONFIG[listing.status] ?? {
@@ -114,7 +96,7 @@ export function MyListingsTable({ listings }: Props) {
             )}
           >
             <div className="flex items-start gap-3 p-3">
-              <Thumb listing={listing} className="size-16" />
+              <ListingThumb publicId={listing.coverImageId} className="size-16" />
 
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 font-semibold leading-snug text-teal-950">{listing.title}</p>
@@ -176,7 +158,7 @@ export function MyListingsTable({ listings }: Props) {
               >
                 <TableCell className="max-w-80">
                   <div className="flex items-center gap-3">
-                    <Thumb listing={listing} className="size-12" />
+                    <ListingThumb publicId={listing.coverImageId} className="size-16" />
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-teal-950">{listing.title}</p>
                       <p className="truncate text-xs text-teal-900/60">
@@ -202,7 +184,7 @@ export function MyListingsTable({ listings }: Props) {
                 </TableCell>
 
                 <TableCell className="hidden text-teal-900/60 xl:table-cell">
-                  {formatDate(listing.createdAt)}
+                  {formatDate(listing?.createdAt)}
                 </TableCell>
 
                 <TableCell className="text-right">

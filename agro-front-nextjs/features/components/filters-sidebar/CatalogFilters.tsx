@@ -108,7 +108,7 @@ export function CatalogFilters() {
             className="top-(--header-height) bottom-(--footer-overlap,0px) h-auto!"
         >
             <SidebarHeader
-                className="flex flex-row items-center justify-between gap-2 border-b border-white/10 bg-teal-950 px-5 py-3"
+                className="flex flex-row items-center justify-between gap-2 border-b border-white/10 bg-[#081D18]/95 px-5 py-3"
                 aria-busy={isPending}
             >
                 <p

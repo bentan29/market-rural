@@ -24,6 +24,7 @@ import type { ListingType } from "@/lib/types/listing.type"
 import { cn } from "@/lib/utils"
 import { ButtonFavorite } from "./Button-Favorite"
 import { COUNTRY_NAMES } from "@/features/constants/catalog/countries"
+import { cloudinaryCardLoader } from "@/lib/cloudinary"
 
 const conditionLabel = {
     NEW: "Nueva",
@@ -66,8 +67,8 @@ interface Props {
 
 export function ListingCard({ listing }: Props) {
 
-    const { id, slug, title, operation, rentPeriod, condition, currency, price, 
-      machineType, year, hours, horsepower, location, featured, imageUrl, seller,
+    const { id, slug, title, operation, rentPeriod, condition, currency, price,
+        machineType, year, hours, horsepower, location, featured, coverImageId, seller,
     } = listing
 
     const formattedPrice = new Intl.NumberFormat("es-UY", {
@@ -113,8 +114,8 @@ export function ListingCard({ listing }: Props) {
         .join("")
 
     const countryLabel = listing.country
-      ? COUNTRY_NAMES.get(listing?.country) ?? listing.country
-      : null
+        ? COUNTRY_NAMES.get(listing?.country) ?? listing.country
+        : null
 
     return (
         <Card
@@ -134,24 +135,20 @@ export function ListingCard({ listing }: Props) {
 
             {/* Imagen */}
             <div className="relative z-10 aspect-4/3 overflow-hidden bg-stone-100 pointer-events-none">
-                {imageUrl ? (
+                {coverImageId ? (
                     <Image
-                        src={imageUrl}
+                        loader={cloudinaryCardLoader}
+                        src={coverImageId}
                         alt={title}
                         fill
                         sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
-                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transform-none"
+                        className="object-cover"
                     />
                 ) : (
                     <div className="grid size-full place-items-center text-stone-300">
-                        <HugeiconsIcon
-                            icon={TractorIcon}
-                            size={52}
-                            strokeWidth={1.2}
-                        />
+                        <HugeiconsIcon icon={TractorIcon} size={48} strokeWidth={1.2} />
                     </div>
                 )}
-
                 {/* Degradado inferior */}
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/45 to-transparent" />
 
@@ -168,7 +165,7 @@ export function ListingCard({ listing }: Props) {
 
                     {featured && (
                         <Badge className="rounded-sm border-0 bg-amber-400 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-950 hover:bg-amber-400">
-                            <HugeiconsIcon icon={CrownIcon} strokeWidth={2}/>
+                            <HugeiconsIcon icon={CrownIcon} strokeWidth={2} />
                             Destacada
                         </Badge>
                     )}
@@ -203,25 +200,25 @@ export function ListingCard({ listing }: Props) {
                     </h3>
 
                     <div className="flex min-w-0 items-center gap-2 text-xs text-stone-500">
-                      <HugeiconsIcon
-                          icon={Location01Icon}
-                          size={15}
-                          strokeWidth={1.8}
-                          className="shrink-0"
-                      />
+                        <HugeiconsIcon
+                            icon={Location01Icon}
+                            size={15}
+                            strokeWidth={1.8}
+                            className="shrink-0"
+                        />
 
-                      <span className="truncate">{location}</span>
+                        <span className="truncate">{location}</span>
 
-                      {countryLabel && (
-                          <>
-                              <span className="size-1 shrink-0 rounded-full bg-stone-300" />
+                        {countryLabel && (
+                            <>
+                                <span className="size-1 shrink-0 rounded-full bg-stone-300" />
 
-                              <span className="shrink-0 font-medium text-stone-600">
-                                  {countryLabel}
-                              </span>
-                          </>
-                      )}
-                  </div>
+                                <span className="shrink-0 font-medium text-stone-600">
+                                    {countryLabel}
+                                </span>
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 {/* Ficha técnica */}

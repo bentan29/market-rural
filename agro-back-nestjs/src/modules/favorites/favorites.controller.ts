@@ -11,15 +11,6 @@ export class FavoritesController {
 
   constructor(private readonly favoritesService: FavoritesService) {}
 
-  //- Agregamos y Quitamos favorito
-  @Post('toggle')
-  toggleFavorite(
-    @Body('listingId') listingId: string,
-    @GetUser() user: client.User,
-  ) {
-    return this.favoritesService.toggleFavorite(user.id, listingId)
-  }
-
   //- Tomamos todas nuestras favoritas
   @Get('myFavorites')
   getOurFavorites(
@@ -29,9 +20,20 @@ export class FavoritesController {
     return this.favoritesService.getAllOurFavorites(paginationFavourites, user.id)
   }
 
-
   @Get('ids')
-    ids(@GetUser('id') userId: string) {
-        return this.favoritesService.ids(userId)
-    }
+  ids(@GetUser('id') userId: string) {
+    return this.favoritesService.ids(userId)
+  }
+
+  //- Agregamos y Quitamos favorito
+  @Post('toggle')
+  toggleFavorite(
+    @Body('listingId') listingId: string,
+    @GetUser() user: client.User,
+  ) {
+    return this.favoritesService.toggleFavorite(user.id, listingId)
+  }
+
+
+
 }

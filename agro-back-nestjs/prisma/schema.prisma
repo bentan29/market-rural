@@ -13,13 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 enum Role {
   USER
   SELLER
   ADMIN
 }
-
 
 // ========================= Listing - publicacion
 enum ListingOperation {
@@ -47,12 +45,12 @@ enum Currency {
 }
 
 enum ListingStatus {
-  DRAFT       // Borrador: todavía no está publicada
-  PUBLISHED   // Publicada y visible en el marketplace
-  PAUSED      // Pausada temporalmente por el vendedor
-  SOLD        // Vendida
-  RENTED      // Alquilada
-  EXPIRED     // Vencida
+  DRAFT // Borrador: todavía no está publicada
+  PUBLISHED // Publicada y visible en el marketplace
+  PAUSED // Pausada temporalmente por el vendedor
+  SOLD // Vendida
+  RENTED // Alquilada
+  EXPIRED // Vencida
 }
 
 model Listing {
@@ -71,22 +69,39 @@ model Listing {
   location      String
   country       String?
   description   String
-  featuredUntil DateTime?       //cuando vence el destacado, asi lo vamos a usar const isFeatured = listing.featuredUntil != null && listing.featuredUntil > new Date()
-  
-  status        ListingStatus   @default(DRAFT)
+  featuredUntil DateTime? //cuando vence el destacado, asi lo vamos a usar const isFeatured = listing.featuredUntil != null && listing.featuredUntil > new Date()
+
+  status ListingStatus @default(DRAFT)
 
   favorites Favorite[]
-  inquiry Inquiry[]
+  inquiry   Inquiry[]
 
   sellerId String
   seller   Seller @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  images ListingImage[]
 
   @@index([machineType, featuredUntil])
   @@index([operation, machineType])
   @@index([sellerId])
+}
+
+//- Imagenes de cada publicacion
+model ListingImage {
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  publicId String @unique // id del archivo en Cloudinary (incluye la carpeta)
+  width    Int
+  height   Int
+  position Int    @default(0) // orden de las fotos: la primera es la portada
+
+  createdAt DateTime @default(now())
+
+  @@index([listingId, position])
 }
 
 // ===================== Suscripcion
@@ -122,10 +137,9 @@ model Subscription {
   @@index([status, expiresAt])
 }
 
-
 //- Consultas, mensajes de maquinarias
 model Inquiry {
-  id        String  @id @default(cuid())
+  id String @id @default(cuid())
 
   listingId String
   listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
@@ -141,7 +155,7 @@ model Inquiry {
 
   emailSentAt    DateTime?
   whatsappSentAt DateTime?
-  notifyError    String?   // último error de envío, para diagnosticar
+  notifyError    String? // último error de envío, para diagnosticar
 
   createdAt DateTime @default(now())
 
@@ -149,7 +163,6 @@ model Inquiry {
   @@index([listingId])
   @@index([email, createdAt])
 }
-
 
 //- Plan
 model Plan {
@@ -178,9 +191,10 @@ model Favorite {
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+
   @@unique([userId, listingId])
 }
-
 
 model User {
   id String @id @default(uuid())
@@ -224,28 +238,28 @@ model Session {
 }
 
 model Seller {
-  id        String @id @default(uuid())
-  userId    String @unique
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   displayName String
-  slug        String     @unique
+  slug        String  @unique
   avatarUrl   String?
-  about       String?    @db.Text
+  about       String? @db.Text
 
   phone    String
   whatsapp String?
 
-  website  String?
+  website String?
 
   country  String // código ISO: "UY", "AR", "PE"
   location String
 
   subscription Subscription?
-  listings Listing[]
-  inquiries Inquiry[]
+  listings     Listing[]
+  inquiries    Inquiry[]
 
-  deletedAt DateTime? 
+  deletedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -255,4 +269,3 @@ model Seller {
 }
 
 ///--- Plan de suscripcion de los corredores -------
-

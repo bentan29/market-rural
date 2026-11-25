@@ -8,8 +8,11 @@ export const GlobalNavBar = () => {
     return (
         <header
             className="
-                sticky top-0 z-50 w-full bg-linear-to-r from-[#022f2b] via-[#075e54] to-primary backdrop-blur-md
-                grid grid-cols-[1fr_auto] shadow-md shadow-black/30
+                sticky top-0 z-50 w-full border-b border-teal-950
+                bg-[#081D18]/95
+                backdrop-blur-xl
+                shadow-lg shadow-black/10
+                grid grid-cols-[1fr_auto] 
                 md:flex md:h-(--header-height) md:items-center md:justify-between md:px-8
             "
         >
@@ -18,6 +21,14 @@ export const GlobalNavBar = () => {
                 href="/"
                 className="flex h-14 items-center px-4 text-lg font-bold md:order-1 md:h-auto md:px-0"
             >
+                <span className="
+                    flex size-9 items-center justify-center
+                    rounded-sm bg-lime-400
+                    text-sm font-black text-[#081D18]
+                    transition-transform group-hover:scale-105 mr-2
+                ">
+                    M
+                </span>
                 <span className="text-white">MARKET</span>
                 <span className="text-lime-300">RURAL</span>
             </Link>

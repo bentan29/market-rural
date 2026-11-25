@@ -52,6 +52,7 @@ export function EditListingContainer({ listingId, listing }: Props) {
         <ListingFormApp
             onSubmit={handleSubmit}
             defaultValues={defaultValues}
+            existingImages={listing.images}
             submitLabel="Guardar cambios"
             submittingLabel="Guardando…"
         />

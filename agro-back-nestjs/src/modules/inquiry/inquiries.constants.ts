@@ -1,0 +1,1 @@
+export const INQUIRY_QUEUE = 'inquiry-notifications'

@@ -23,7 +23,7 @@ type Props = {
 }
 
 export function ContactForm({ slug, listingTitle, sellerName }: Props) {
-    
+
     const { user } = useAuth()
     const [isPending, startTransition] = useTransition()
     const [sent, setSent] = useState(false)

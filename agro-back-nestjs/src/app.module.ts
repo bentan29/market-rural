@@ -12,6 +12,9 @@ import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { BullModule } from '@nestjs/bullmq';
 import { envs } from './core/config';
+import { MailModule } from './modules/mail/mail.module';
+import { InquiryModule } from './modules/inquiry/inquiry.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -32,8 +35,17 @@ import { envs } from './core/config';
       connection: {
         host: envs.redisHost ?? 'localhost',
         port: envs.redisPort ?? 6379,
-      }
-    })
+        password: envs.redisPassword,
+        tls: envs.redisTls ? {} : undefined,
+      },
+      prefix: "marketrural"
+    }),
+
+    MailModule,
+
+    InquiryModule,
+
+    CloudinaryModule
   ],
 })
 export class AppModule { }

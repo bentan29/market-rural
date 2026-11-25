@@ -5,6 +5,7 @@ import {
   type MachineType,
 } from "@/features/constants/products/type-machine.constant"
 import { LIST_COUNTRIES } from "@/features/constants/countries/countries"
+import { UploadedImage } from "@/features/actions/private/images/upload-image"
 
 export const OPERATIONS = ["SALE", "RENT"] as const
 export const RENT_PERIODS = ["DAY", "WEEK", "MONTH"] as const
@@ -120,4 +121,8 @@ export type ListingFormInput = z.input<typeof listingFormSchema>
 export type ListingFormValues = z.output<typeof listingFormSchema>
 
 /** Lo que recibe el backend (CreateListingDto). */
-export type CreateListingPayload = ListingFormValues
+
+export type CreateListingPayload = ListingFormValues & {
+  newImages?: UploadedImage[]
+  removeImageIds?: string[]
+}

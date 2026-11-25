@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { 
+import {
   Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
@@ -22,9 +22,10 @@ import {
 } from "@/features/schemas/listings/listing.schema"
 import { SegmentedControl } from "./SegmentedControl"
 import { FormSection } from "./form-section"
-import { 
+import {
   CONDITION_OPTIONS, CURRENCY_OPTIONS, OPERATION_OPTIONS, RENT_PERIOD_OPTIONS, RENT_PERIOD_UNIT,
 } from "@/features/constants/listings/listings.constants"
+import { ImagesChange, ListingImagesField } from "@/features/components/dashboard/listings/form/ListingImagesField"
 
 const DESCRIPTION_MAX = 5000
 
@@ -39,6 +40,7 @@ type ListingFormProps = {
   defaultValues?: Partial<ListingFormInput>
   submitLabel?: string
   submittingLabel?: string
+  existingImages?: { id: string; publicId: string }[]
 }
 
 export function ListingFormApp({
@@ -48,10 +50,13 @@ export function ListingFormApp({
   defaultValues,
   submitLabel = "Publicar",
   submittingLabel = "Publicando…",
+  existingImages
 }: ListingFormProps) {
 
   //- true tras un alta exitosa: mantiene el botón apagado mientras se navega (evita un doble envío)
   const [done, setDone] = useState(false)
+
+  const [images, setImages] = useState<ImagesChange>({ uploaded: [], removeIds: [], uploading: false })
 
   const form = useForm<ListingFormInput, unknown, ListingFormValues>({
     resolver: zodResolver(listingFormSchema),
@@ -85,10 +90,19 @@ export function ListingFormApp({
   const busy = formState.isSubmitting || done
 
   async function submit(values: ListingFormValues) {
+    //- Si todavía hay fotos subiéndose, se espera: guardar ahora dejaría la publicación sin ellas
+    if (images.uploading) {
+      form.setError("root", { message: "Esperá a que terminen de subir las fotos." })
+      return
+    }
+
     try {
       const result = await onSubmit({
         ...values,
         rentPeriod: values.operation === "RENT" ? values.rentPeriod : undefined,
+        newImages: images.uploaded,
+        //- Solo al editar: el alta no acepta este campo
+        ...(existingImages ? { removeImageIds: images.removeIds } : {}),
       })
 
       if (!result.ok) {
@@ -337,6 +351,10 @@ export function ListingFormApp({
           />
         </FormSection>
 
+        <FormSection title="Fotos" description="Subí hasta 10 fotos. La primera es la portada de la publicación.">
+          <ListingImagesField existing={existingImages} onChange={setImages} />
+        </FormSection>
+
         {/* Descripción y ubicación */}
         <FormSection title="Descripción y ubicación">
           <Controller
@@ -426,10 +444,10 @@ export function ListingFormApp({
         <div className="flex justify-end">
           <Button
             type="submit"
-            disabled={busy}
+            disabled={busy || images.uploading}
             className="rounded-sm bg-teal-900 px-6 text-white hover:bg-teal-800"
           >
-            {busy ? submittingLabel : submitLabel}
+            {images.uploading ? "Subiendo fotos…" : busy ? submittingLabel : submitLabel}
           </Button>
         </div>
 

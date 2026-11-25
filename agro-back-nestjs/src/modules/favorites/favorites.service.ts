@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PaginationDto } from 'src/common/dto';
+import { isFeatured, LISTING_CARD_SELECT, publicListingWhere, toListingCard } from 'src/common/utils/listing.util';
 import { PrismaService } from 'src/core/prisma/prisma.module';
 
 @Injectable()
@@ -46,40 +48,32 @@ export class FavoritesService {
     //? ---- Tomamos todos nuestros favoritos .
     async getAllOurFavorites(paginationFavourites: PaginationDto, userId: string) {
 
+        const now = new Date()
+
         const page = paginationFavourites.page ?? 1
         const limit = paginationFavourites.limit ?? 4
         const skip = (page - 1) * limit
 
-        const [favorites, total] = await Promise.all([
-            //- Publicaciones favoritas
+        //- Solo se listan las que hoy se ven en público (el total cuenta con la misma regla)
+        const where: Prisma.FavoriteWhereInput = { userId, listing: publicListingWhere(now) }
+
+         const [rows, total] = await Promise.all([
             this.prismaClient.favorite.findMany({
-                where: { userId },
+                where,
+                //- Sin orden, la paginación puede repetir o saltear filas entre páginas
+                orderBy: [{ createdAt: 'desc' }, { listingId: 'asc' }],
                 skip,
                 take: limit,
-                include: {
-                    listing: {
-                        include: {
-                            seller: {
-                                select: {
-                                    slug: true,
-                                    displayName: true,
-                                    whatsapp: true,
-                                }
-                            }
-                        }
-                    }
-                }
+                select: { listing: { select: LISTING_CARD_SELECT } },
             }),
-            //- Cantidad de favoritas
-            this.prismaClient.favorite.count({where: {userId}})
+            this.prismaClient.favorite.count({ where }),
         ])
 
         return {
-            data: favorites.map((fav) => ({
-                ...fav,
-                isFavorite: true,
-            })),
-            totalPages: Math.ceil(total/limit)
+            items: rows.map(({ listing }) => toListingCard(listing, now)),
+            total,
+            page,
+            totalPages: Math.ceil(total / limit),
         }
 
     }

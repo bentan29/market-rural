@@ -11,3 +11,8 @@ export const SELLER_SELECTABLE_STATUSES = [
     ListingStatus.SOLD,
     ListingStatus.RENTED,
 ] as const
+
+
+//- Imagenes en cloudinary
+export const MAX_LISTING_IMAGES = 10 // mantenelo igual que en el front
+export const CLOUDINARY_UNATTACHED_TAG = 'unattached'

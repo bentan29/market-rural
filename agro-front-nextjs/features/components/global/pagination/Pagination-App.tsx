@@ -37,7 +37,7 @@ export const PaginationApp = ({ totalPages }: Props) => {
       return pages
     }
 
-    //? -----------
+   
     const pages = getPages()
 
     return (

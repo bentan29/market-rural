@@ -12,7 +12,8 @@ import { REDIS_CLIENT } from "src/common/constants";
                 return new Redis({
                     host: envs.redisHost ?? 'localhost',
                     port: envs.redisPort ?? 6379,
-                    password: envs.redisPassword
+                    password: envs.redisPassword,
+                    tls: envs.redisTls ? {} : undefined,
                 })
             }
         }

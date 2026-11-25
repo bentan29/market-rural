@@ -25,14 +25,13 @@ export type ListingType = {
     slug: string | null
   } | null
 
-  imageUrl?: string | null
+  coverImageId: string | null ///------------ imagen
 }
 
 export type ListingsResponse = {
   items: ListingType[]
   total: number
   page: number
-  pageSize: number
   totalPages: number
 }
 
@@ -40,11 +39,22 @@ export type ListingsResponse = {
 export type MyListingDetail = ListingType & {
   horsepower: number | null
   description: string
+  images: {
+    id: string;
+    publicId: string;
+    width: number;
+    height: number
+  }[]
 }
 
 
 export type PublicListingDetail = Omit<ListingType, 'seller'> & {
   description: string
+  images: {
+    publicId: string;
+    width: number;
+    height: number
+  }[]
   seller: {
     displayName: string
     slug: string

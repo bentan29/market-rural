@@ -56,7 +56,7 @@ const linkClass =
 
 export function FooterApp() {
     return (
-        <footer className="relative z-20 border-t border-white/10 bg-teal-950 text-white">
+        <footer className="relative z-20 border-t border-white/10  bg-[#081D18] text-white">
             {/* Trazo lima sobre el borde superior */}
             <span
                 aria-hidden

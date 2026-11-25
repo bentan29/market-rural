@@ -34,7 +34,7 @@ export async function sendInquiryAction(slug: string, values: InquiryValues): Pr
     const { company, phone, ...rest } = parsed.data
 
     try {
-        const res = await fetch(`${API}/listings/${encodeURIComponent(slug)}/inquiries`, {
+        const res = await fetch(`${API}/listing/${encodeURIComponent(slug)}/inquiries`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ...rest, ...(phone && { phone }) }),
