@@ -1,9 +1,15 @@
+import { connection } from "next/server"
 import Link from "next/link"
 import { Suspense } from "react"
 import { getFeaturedListings } from "@/features/actions/public/listings/get-featured-listings"
 import { ListingsGrid } from "../../listings/ListingsGrid"
 
 async function FeaturedItems() {
+    
+    //- Marca este componente como "se resuelve al abrir la página": sale del HTML que se arma al compilar
+    //- y el build ya no necesita que el backend esté despierto. El caché de "minutos" sigue funcionando en ejecución
+    await connection()
+
     try {
         const listings = await getFeaturedListings(8)
 
