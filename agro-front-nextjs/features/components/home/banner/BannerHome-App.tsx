@@ -4,7 +4,7 @@ import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CATALOG_COUNTRIES } from "@/features/constants/catalog/countries"
 import { cn } from "@/lib/utils"
-import { TopographyBackground } from "../../animations/Topography-background"
+import TopographyBackground from "../../animations/Topography-background"
 
 const ACTIONS = [
     {

@@ -1,5 +1,5 @@
-import { TopographyBackground } from "@/features/components/animations/Topography-background"
-import { AuthBackground } from "@/features/components/auth/AuthBackground"
+
+import TopographyBackground from "@/features/components/animations/Topography-background"
 import { RegisterFormApp } from "@/features/components/auth/register/RegisterForm-App"
 
 export default function RegistrarmePage() {

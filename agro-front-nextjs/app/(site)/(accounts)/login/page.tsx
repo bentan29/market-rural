@@ -1,5 +1,4 @@
-import { ContourLayer, TopographyBackground } from "@/features/components/animations/Topography-background";
-import { AuthBackground } from "@/features/components/auth/AuthBackground";
+import TopographyBackground from "@/features/components/animations/Topography-background";
 import { LoginFormApp } from "@/features/components/auth/login/LoginForm-App";
 
 export default function LoginPage() {
