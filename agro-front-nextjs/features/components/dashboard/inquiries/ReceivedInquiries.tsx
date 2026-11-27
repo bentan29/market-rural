@@ -5,6 +5,8 @@ import { PaginationApp } from "../../global/pagination/Pagination-App"
 import { formatDate } from "../listings/table/listing-format"
 import { Notice } from "../overview/overview-ui"
 import { MarkReadButton } from "./MarkReadButton"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { CheckCheckIcon } from "@hugeicons/core-free-icons"
 
 const PATH = "/dashboard/consultas?tab=recibidas"
 
@@ -84,7 +86,10 @@ export async function ReceivedInquiries({ page }: { page: number }) {
                                 </a>
                             )}
 
-                            {!inquiry.readAt && <MarkReadButton id={inquiry.id} />}
+                            {!inquiry.readAt 
+                                ? <MarkReadButton id={inquiry.id} /> 
+                                : <div className="flex gap-1 bg-green-600 px-2 text-white rounded-sm items-center"><HugeiconsIcon icon={CheckCheckIcon} /> <span className="text-xs font-bold">Leída</span></div>
+                            }
                         </div>
                     </li>
                 ))}
