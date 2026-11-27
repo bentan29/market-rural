@@ -7,7 +7,7 @@ export const FormSection = ({ title, description, children,}: {
     children: ReactNode
 }) => {
     return (
-        <section className="space-y-5 rounded-sm border bg-white p-5">
+        <section className="space-y-5 rounded-sm border bg-amber-50 p-5">
             <div className="space-y-1">
                 <h2 className="text-base font-semibold text-teal-950">{title}</h2>
                 {description && (

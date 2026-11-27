@@ -313,7 +313,6 @@ export class ListingsService {
         }
     }
 
-    //? --- Editamos una publicacion propia
     //? --- Editamos una publicacion propia (datos y fotos)
     async update(sellerId: string, listingId: string, dto: UpdateListingDto) {
         const { newImages = [], removeImageIds = [], ...fields } = dto
@@ -393,7 +392,6 @@ export class ListingsService {
             throw error
         }
     }
-
 
     //? --- Cambiar el estado (pausar, borrador, vendida, alquilada...)
     async changeStatus(sellerId: string, listingId: string, target: ListingStatus) {
@@ -478,7 +476,7 @@ export class ListingsService {
 
     //* ========== RUTAS PUBLICAS ==================================================================================================================================
 
-    //? ---- maquinarias de todas las maquinas
+    //? ---- lista de todas las maquinas
     async findPublic(query: ListingsQueryDto) {
 
         const {
@@ -625,11 +623,7 @@ export class ListingsService {
 
         return shuffle(items)
             .slice(0, take)
-            .map(({ featuredUntil, price, ...listing }) => ({
-                ...listing,
-                price: Number(price),
-                featured: true,
-            }))
+            .map((listing) => toListingCard(listing, now))
     }
 
 

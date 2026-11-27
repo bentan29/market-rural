@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { authErrorClass, authInputClass, authInputGroupClass, authLabelClass } from "../styles/auth-styles"
-import { loginUserAction } from "@/features/actions/public/auth/login.action"
+import { loginUserAction } from "@/features/actions/auth/login.action"
 import { toast } from "@/components/ui/toast"
 import { useAuth } from "@/features/providers/AuthProvider"
 
@@ -65,7 +65,7 @@ export const LoginFormApp = ({ next }: Props) => {
     }
 
     return (
-        <div className="rounded-xl border border-white/15 bg-teal-950/60 p-6 text-white shadow-2xl backdrop-blur-md md:p-8">
+        <div className="rounded-xl border border-white/15 bg-lime-950/30 p-6 text-white shadow-2xl backdrop-blur-md md:p-8">
 
             <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
                 <FieldGroup>

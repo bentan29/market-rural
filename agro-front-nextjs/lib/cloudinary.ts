@@ -1,6 +1,6 @@
 import type { ImageLoaderProps } from "next/image"
 
-const CLOUD_NAME = process.env.NEXT_CLOUDINARY_CLOUD_NAME
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
 const base = (transformation: string, src: string) =>
     `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${transformation}/${src}`

@@ -19,6 +19,8 @@ const envsSchema = z.object({
     CLOUDINARY_CLOUD_NAME: z.string(),
     CLOUDINARY_API_KEY: z.string(),
     CLOUDINARY_API_SECRET: z.string(),
+
+    FRONTEND_URL: z.string()
 })
 
 const result = envsSchema.safeParse(process.env)
@@ -44,5 +46,7 @@ export const envs = {
 
     cloudinaryCloudName: result.data.CLOUDINARY_CLOUD_NAME,
     cloudinaryApiKey: result.data.CLOUDINARY_API_KEY,
-    cloudinaryApiSecret: result.data.CLOUDINARY_API_SECRET
+    cloudinaryApiSecret: result.data.CLOUDINARY_API_SECRET,
+
+    frontendUrl: result.data.FRONTEND_URL
 }

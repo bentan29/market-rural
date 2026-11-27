@@ -1,18 +1,19 @@
 import {
     ConflictException, Injectable, InternalServerErrorException, NotFoundException,
 } from '@nestjs/common'
-import { Prisma, Role, SubscriptionStatus } from '@prisma/client'
+import { ListingStatus, Prisma, Role, SubscriptionStatus } from '@prisma/client'
 import { uniqueSlug } from 'src/common/utils/slug.util'
 import { CreateSellerDto } from './dto/create-seller.dto'
 import { PrismaService } from 'src/core/prisma/prisma.module'
 import { DEFAULT_SELLER_PLAN } from 'src/common/constants/plans-name.constants'
 import { publicListingWhere } from 'src/common/utils/listing.util'
+import { isSubscriptionActive } from 'src/common/utils/suscription.util'
 
 @Injectable()
 export class SellerService {
     constructor(
         private readonly prismaClient: PrismaService,
-    ) {}
+    ) { }
 
     //! ================ Rutas privadas ================
 
@@ -48,7 +49,7 @@ export class SellerService {
     //? --------- Crear vendedor
     private async createNew(userId: string, planId: string, dto: CreateSellerDto) {
         //- Slug
-        const slug = await uniqueSlug(dto.displayName, async(candidate) => {
+        const slug = await uniqueSlug(dto.displayName, async (candidate) => {
             const found = await this.prismaClient.seller.findUnique({
                 where: { slug: candidate },
                 select: { id: true },
@@ -71,7 +72,7 @@ export class SellerService {
                     },
                 },
                 include: {
-                    subscription: {include: {plan: true}},
+                    subscription: { include: { plan: true } },
                 }
             })
 
@@ -85,10 +86,10 @@ export class SellerService {
     //? --------- Reactivar cuenta de vendedor
     //?- Vuelve quien se había dado de baja: se conserva el slug y las publicaciones (reaparecen solas)
     private async reactivate(sellerId: string, userId: string, planId: string, dto: CreateSellerDto) {
-        
+
         return this.prismaClient.$transaction(async (tx) => {
             const seller = await tx.seller.update({
-                where: {id: sellerId},
+                where: { id: sellerId },
                 data: {
                     displayName: dto.displayName,
                     phone: dto.phone,
@@ -116,7 +117,7 @@ export class SellerService {
                         },
                     },
                 },
-                include: {subscription: {include: {plan: true}}}
+                include: { subscription: { include: { plan: true } } }
             })
 
             await this.promoteToSeller(tx, userId)
@@ -133,7 +134,7 @@ export class SellerService {
     }
 
 
-   //?- Perfil del vendedor activo. El guard garantiza que existe; el null-check es por el tipo y por una carrera con la baja
+    //?- Perfil del vendedor activo. El guard garantiza que existe; el null-check es por el tipo y por una carrera con la baja
     async findMine(sellerId: string) {
         const seller = await this.prismaClient.seller.findUnique({
             where: { id: sellerId },
@@ -186,6 +187,88 @@ export class SellerService {
             },
         }
     }
+
+
+    //* ----- Home del Dashboard ------
+    //? ---- Resumen para el inicio del panel del vendedor
+    async getSummary(sellerId: string) {
+        const now = new Date()
+
+        const [seller, byStatus, featuredUsed, subscription, totalInquiries, recent, unreadInquiries] = await Promise.all([
+            this.prismaClient.seller.findUnique({
+                where: { id: sellerId },
+                select: { displayName: true, slug: true },
+            }),
+            this.prismaClient.listing.groupBy({
+                by: ['status'],
+                where: { sellerId },
+                _count: { _all: true },
+            }),
+            this.prismaClient.listing.count({ where: { sellerId, featuredUntil: { gt: now } } }),
+            this.prismaClient.subscription.findUnique({
+                where: { sellerId },
+                select: {
+                    status: true,
+                    expiresAt: true,
+                    isComplimentary: true,
+                    plan: { select: { name: true, maxListings: true, maxFeatured: true } },
+                },
+            }),
+            this.prismaClient.inquiry.count({ where: { sellerId } }),
+            this.prismaClient.inquiry.findMany({
+                where: { sellerId },
+                orderBy: { createdAt: 'desc' },
+                take: 5,
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                    message: true,
+                    createdAt: true,
+                    readAt: true,
+                    listing: { select: { title: true, slug: true } },
+                },
+            }),
+            //- NUEVO: las que todavía no se marcaron como leídas
+            this.prismaClient.inquiry.count({ where: { sellerId, readAt: null } }),
+        ])
+        if (!seller) throw new NotFoundException('Vendedor no encontrado')
+
+        const count = (status: ListingStatus) => byStatus.find((row) => row.status === status)?._count._all ?? 0
+
+        //- Un adelanto del mensaje: solo agrega "…" si realmente lo recortó
+        const preview = (message: string, max = 160) =>
+            message.length > max ? `${message.slice(0, max).trimEnd()}…` : message
+
+        return {
+            seller,
+            listings: {
+                total: byStatus.reduce((sum, row) => sum + row._count._all, 0),
+                published: count(ListingStatus.PUBLISHED),
+                draft: count(ListingStatus.DRAFT),
+                paused: count(ListingStatus.PAUSED),
+                closed: count(ListingStatus.SOLD) + count(ListingStatus.RENTED),
+                expired: count(ListingStatus.EXPIRED),
+            },
+            featured: { used: featuredUsed, max: subscription?.plan.maxFeatured ?? 0 },
+            subscription: subscription
+                ? {
+                    planName: subscription.plan.name,
+                    maxListings: subscription.plan.maxListings,
+                    isActive: isSubscriptionActive(subscription),
+                    isComplimentary: subscription.isComplimentary,
+                    expiresAt: subscription.expiresAt,
+                }
+                : null,
+            inquiries: {
+                total: totalInquiries,
+                unread: unreadInquiries, // NUEVO
+                recent: recent.map((inquiry) => ({ ...inquiry, message: preview(inquiry.message) })),
+            },
+        }
+    }
+
 
 
 

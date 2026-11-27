@@ -7,6 +7,12 @@ import { PrismaModule } from 'src/core/prisma/prisma.service';
 import { TokensModule } from '../tokens/tokens.module';
 import { SessionModule } from '../session/session.module';
 import { JwtStrategy } from './strategies/jwt-strategy';
+import { MailModule } from '../mail/mail.module';
+import { BullModule } from '@nestjs/bullmq';
+import { MAIL_QUEUE } from '../mail/constants/mail.constants';
+import { EmailVerificationService } from './email-verification/email-verification.service';
+import { EmailVerificationProcessor } from './email-verification/email-verification.processor';
+import { VerificationCleanupService } from './email-verification/verification-cleanup.service';
 
 @Module({
   imports: [
@@ -14,6 +20,8 @@ import { JwtStrategy } from './strategies/jwt-strategy';
     PrismaModule,
     TokensModule,
     SessionModule,
+    MailModule,
+    BullModule.registerQueue({ name: MAIL_QUEUE }),
 
     //* Passport - Esto dice a NestJS que cuando usemos los guards @UseGuards(AuthGuard()) sin especificar estrategia, 
     //*  use jwt por defecto. Sin esto, AuthGuard() no sabría qué estrategia usar.
@@ -25,7 +33,13 @@ import { JwtStrategy } from './strategies/jwt-strategy';
   ],
 
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [ PassportModule, JwtStrategy]
+  providers: [
+    AuthService,
+    JwtStrategy,
+    EmailVerificationService,
+    EmailVerificationProcessor,
+    VerificationCleanupService,
+  ],
+  exports: [PassportModule, JwtStrategy]
 })
-export class AuthModule {}
+export class AuthModule { }

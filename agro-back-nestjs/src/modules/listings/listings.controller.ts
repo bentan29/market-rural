@@ -80,6 +80,7 @@ export class ListingsController {
   ) {
     return this.listingsService.changeStatus(sellerId, id, dto.status)
   }
+  
 
 
   //* ================ RUTAS PUBLICAS ================

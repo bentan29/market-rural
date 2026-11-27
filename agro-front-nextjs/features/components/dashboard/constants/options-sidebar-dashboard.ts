@@ -1,4 +1,4 @@
-import { AccountSetting02Icon, Award05Icon, DashboardSquare01Icon, FavouriteIcon,  PaymentSuccess01Icon,  SendIcon, TractorIcon } from "@hugeicons/core-free-icons"
+import { AccountSetting02Icon, Award05Icon, DashboardSquare01Icon, FavouriteIcon,  Message01Icon,  PaymentSuccess01Icon,  SendIcon, TractorIcon } from "@hugeicons/core-free-icons"
 import type { IconSvgElement } from "@hugeicons/react"
 
 export type NavItem = {
@@ -38,15 +38,15 @@ export const data: {
       url: "/dashboard/favoritos",
       icon: FavouriteIcon,
     },
+    { 
+      title: "Consultas", 
+      url: "/dashboard/consultas", 
+      icon: Message01Icon 
+    },
   ],
 
 
   sellerMenus: [
-    {
-      title: "Mensajes",
-      url: "/dashboard/",
-      icon: SendIcon,
-    },
     {
       title: "Publicaciones",
       url: "/dashboard/publicaciones",

@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
@@ -8,7 +7,6 @@ import {
     DashboardSpeed01Icon,
     FlashIcon,
     Location01Icon,
-    TractorIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Badge } from "@/components/ui/badge"
@@ -43,9 +41,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title,
         description,
         alternates: { canonical: `/maquinaria/${listing.slug}` },
-        openGraph: { 
-            title, 
-            description, 
+        openGraph: {
+            title,
+            description,
             type: "website",
             images: listing.images[0] ? [{ url: cloudinaryUrl(listing.images[0].publicId) }] : undefined,
         },
@@ -140,12 +138,10 @@ async function ListingDetail({ params }: Props) {
 
                 {/* Columna principal */}
                 <div className="min-w-0 space-y-8">
-                    <div className="relative aspect-4/3 overflow-hidden rounded-sm bg-stone-100">
-                        <ListingGallery
-                            images={listing.images}
-                            title={listing.title}
-                        />
-                    </div>
+                    <ListingGallery
+                        images={listing.images}
+                        title={listing.title}
+                    />
 
                     <header className="space-y-3">
                         <p className="flex flex-wrap items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-stone-500">

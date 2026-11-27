@@ -13,7 +13,7 @@ import Link from "next/link"
 import { useState, useTransition } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { authErrorClass, authInputClass, authLabelClass } from "../styles/auth-styles"
-import { registerUserAction } from "@/features/actions/public/auth/register.action"
+import { registerUserAction } from "@/features/actions/auth/register.action"
 import { toast } from "@/components/ui/toast"
 import { useRouter } from "next/navigation"
 

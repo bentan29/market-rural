@@ -3,6 +3,7 @@ export type SessionUser = {
     fullName: string | null
     email: string
     role: 'USER' | 'SELLER' | 'ADMIN'
+    emailVerified: boolean
 }
 
 export const ACCESS_COOKIE_NAME = 'accessToken' // mismo valor que en el backend

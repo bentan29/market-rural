@@ -1,6 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import { useSyncExternalStore } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -38,7 +39,7 @@ const FAMILIES = [
     },
 ] as const
 
-//- Curvas de nivel en CSS puro. Solo se desplazan (lo hace la GPU, sin repintar) y no hacen zoom: el zoom engrosaba las líneas
+//- Curvas de nivel en CSS puro. Solo se desplazan (lo hace la GPU, sin repintar) y no hacen zoom
 export function ContourLayer({ className }: { className?: string }) {
     return (
         <div aria-hidden="true" className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}>
@@ -68,12 +69,37 @@ export function ContourLayer({ className }: { className?: string }) {
     )
 }
 
-type Props = {
-    /** false: en el celular no dibuja nada (el banner pone su propia capa encima de la foto) */
-    showOnMobile?: boolean
+//- La captura del mismo efecto, con un desplazamiento muy lento: igual que la PC, sin gastar GPU
+export function TopographyStill({ className }: { className?: string }) {
+    return (
+        <div aria-hidden="true" className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}>
+            <style>{`
+                @keyframes still-drift {
+                    from { transform: scale(1.12) translate3d(-2%, -1%, 0); }
+                    to   { transform: scale(1.12) translate3d(2%, 1%, 0); }
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    .still-drift { animation: none !important; }
+                }
+            `}</style>
+
+            {/* Debajo van las curvas CSS: se ven mientras carga la captura y, si el archivo faltara, no queda un hueco vacío */}
+            <ContourLayer />
+
+            {/* scale(1.12) deja margen para que, al desplazarse, nunca se vean los bordes de la imagen */}
+            <Image
+                src="/images/backgrounds/topography-mobile.webp"
+                alt=""
+                fill
+                sizes="100vw"
+                className="still-drift object-cover will-change-transform"
+                style={{ animation: 'still-drift 40s ease-in-out infinite alternate' }}
+            />
+        </div>
+    )
 }
 
-export const TopographyBackground = ({ showOnMobile = true }: Props) => {
+export const TopographyBackground = () => {
     const isDesktop = useSyncExternalStore(desktopStore.subscribe, desktopStore.getSnapshot, getServerSnapshot)
     const reducedMotion = useSyncExternalStore(
         reducedMotionStore.subscribe,
@@ -81,7 +107,9 @@ export const TopographyBackground = ({ showOnMobile = true }: Props) => {
         getServerSnapshot,
     )
 
-    if (!isDesktop) return showOnMobile ? <ContourLayer /> : null
+    //- Celular: la captura. md:hidden evita que, en la PC, se vea estirada y borrosa mientras carga el efecto vivo
+    if (!isDesktop) return <TopographyStill className="md:hidden" />
+    //- Escritorio con "reducir movimiento": curvas CSS (la captura es vertical y se estiraría)
     if (reducedMotion) return <ContourLayer />
 
     //- Pasale acá los valores del panel de la página (colores, velocidad, densidad...)

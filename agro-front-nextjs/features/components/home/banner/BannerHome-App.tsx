@@ -4,7 +4,7 @@ import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CATALOG_COUNTRIES } from "@/features/constants/catalog/countries"
 import { cn } from "@/lib/utils"
-import { ContourLayer, TopographyBackground } from "../../animations/Topography-background"
+import { TopographyBackground } from "../../animations/Topography-background"
 
 const ACTIONS = [
     {
@@ -33,6 +33,10 @@ const CORNERS = [
     "-right-px -bottom-px border-r-2 border-b-2",
 ] as const
 
+//- La foto se funde con el fondo por la izquierda, arriba y abajo: así deja ver las curvas en vez de taparlas
+const TRACTOR_MASK =
+    "linear-gradient(to right, transparent 15%, black 75%), linear-gradient(to bottom, transparent 0%, black 25%, black 70%, transparent 100%)"
+
 const monoLabel = "font-mono text-[10px] uppercase tracking-[0.25em] text-white/45"
 
 export const BannerHomeApp = () => {
@@ -41,38 +45,29 @@ export const BannerHomeApp = () => {
         //- --header-height viene del layout de (site)
         <section className="relative isolate flex min-h-[min(720px,calc(100svh-var(--header-height)))] w-full overflow-hidden bg-teal-950">
 
+            {/* 1. Fondo: en escritorio el efecto vivo; en el celular, la captura */}
             <div className="absolute inset-0 z-0">
                 <TopographyBackground />
             </div>
 
-            {/* 2b. Curvas de nivel del celular: ENCIMA de la foto (si no, la foto las tapa) y debajo del velo */}
-            <ContourLayer className="z-15 md:hidden" />
-                    
-
-            {/* 1. Cuadrícula tenue que se desvanece hacia el borde */}
-            <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] background-size-[56px_56px] mask-[radial-gradient(ellipse_at_30%_40%,black,transparent_75%)]"
-            />
-
-            {/* 2. Tractor con desvanecimiento hacia la izquierda */}
+            {/* 2. Tractor: más tenue que antes, para que el fondo se vea a través */}
             <Image
                 src="/images/banner/tractor3.png"
                 alt="Tractor trabajando en el campo al atardecer"
                 fill
                 priority
                 sizes="100vw"
-                className="
-                    pointer-events-none z-10
-                    object-cover object-[65%_center]
-                    opacity-60
-                    mask-[linear-gradient(to_right,transparent_10%,black_70%)]
-                    md:opacity-90
-                "
+                className="pointer-events-none z-10 object-cover object-[65%_center] opacity-40 md:opacity-80"
+                style={{
+                    maskImage: TRACTOR_MASK,
+                    maskComposite: "intersect",
+                    WebkitMaskImage: TRACTOR_MASK,
+                    WebkitMaskComposite: "source-in",
+                }}
             />
 
-            {/* 3. Velo: asegura que el texto se lea (más fuerte a la izquierda y en el celular) */}
-            <div className="pointer-events-none absolute inset-0 z-20 bg-linear-to-b from-teal-950/70 via-teal-950/40 to-teal-950/80 lg:bg-linear-to-r lg:from-teal-950/85 lg:via-teal-950/30 lg:to-transparent" />
+            {/* 3. Velo: asegura que el texto se lea. Más suave que antes, para que no apague el fondo */}
+            <div className="pointer-events-none absolute inset-0 z-20 bg-linear-to-b from-teal-950/60 via-teal-950/30 to-teal-950/75 lg:bg-linear-to-r lg:from-teal-950/75 lg:via-teal-950/25 lg:to-transparent" />
 
             {/* 4. Fundido inferior hacia el fondo de la página */}
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-32 bg-linear-to-t from-black/50 to-transparent" />

@@ -1,18 +1,19 @@
-import { MyFavoritesReults } from "@/features/components/favorites/MyFavoritesReults";
-import { DashboardPageHeader } from "@/features/components/global/header/DashboardPageHeader";
-import { Suspense } from "react";
+import { Suspense } from "react"
+import { DashboardPageHeader } from "@/features/components/global/header/DashboardPageHeader"
+import { MyFavoritesResults } from "@/features/components/favorites/MyFavoritesReults"
 
-export default function FavoritosPage() {
+type Props = {
+    searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+export default function FavoritosPage({ searchParams }: Props) {
     return (
-        <div className="flex flex-col gap-8 mb-10">
-            <DashboardPageHeader
-                title="Favoritos"
-                subtitle="Lista de Maquinarias guardas"
-            />
+        <div className="flex flex-col gap-6">
+            <DashboardPageHeader title="Mis favoritos" subtitle="Las máquinas que guardaste" />
 
-            <Suspense fallback={<div className="h-40 animate-pulse rounded-sm bg-muted" />}>
-                <MyFavoritesReults/>
+            <Suspense fallback={<div className="h-64 animate-pulse rounded-sm bg-muted" />}>
+                <MyFavoritesResults searchParams={searchParams} />
             </Suspense>
         </div>
-    );
+    )
 }

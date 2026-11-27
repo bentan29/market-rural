@@ -1,12 +1,13 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from '../user/dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import type { Request, Response } from 'express' 
-import { ACCESS_COOKIE_NAME, JWT_ACCESS_EXPIRATION_MS, REFRESH_COOKIE_NAME, REFRESH_TOKEN_SEVEN_DAYS_MS,} from 'src/common/constants';
+import type { Request, Response } from 'express'
+import { ACCESS_COOKIE_NAME, JWT_ACCESS_EXPIRATION_MS, REFRESH_COOKIE_NAME, REFRESH_TOKEN_SEVEN_DAYS_MS, } from 'src/common/constants';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/core/decorators';
 import * as client from '@prisma/client';
+import { VerifyEmailDto } from './email-verification/dto/verify-email.dto';
 
 const baseCookie = {
   httpOnly: true,
@@ -22,12 +23,27 @@ const refreshCookieOptions = { ...baseCookie, path: '/' }
 @Controller('auth')
 export class AuthController {
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   //? ---------------
   @Post('register')
-  register(@Body() dto: RegisterUserDto) {
-    return this.authService.register(dto)
+  register(@Body() dto: RegisterUserDto, @Query('next') next?: string) {
+    return this.authService.register(dto, next)
+  }
+
+  //? --- Confirmar el email con el token del enlace (público: se puede abrir desde otro dispositivo)
+  @Post('verify-email')
+  @HttpCode(200)
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto.token)
+  }
+
+  //? --- Reenviar el correo de verificación (requiere sesión: así no sirve para averiguar qué emails existen)
+  @Post('resend-verification')
+  @HttpCode(200)
+  @UseGuards(AuthGuard())
+  resendVerification(@GetUser() user: client.User, @Query('next') next?: string) {
+    return this.authService.resendVerification(user, next)
   }
 
 
@@ -36,10 +52,10 @@ export class AuthController {
   @HttpCode(200)
   async login(
     @Body() loginDto: LoginUserDto,
-    @Req() req: Request,  
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response, //passthrough: true le dice a Nest: "dame acceso a res para hacer cosas de bajo nivel (como res.cookie(...))
-  ){
-    const {refreshToken, accessToken, ...result} = await this.authService.login(loginDto, {
+  ) {
+    const { refreshToken, accessToken, ...result } = await this.authService.login(loginDto, {
       userAgent: req.headers['user-agent'], // userAgent: un texto que manda el navegador y dice quién es, por ejemplo Mozilla/5.0 (iPhone; ...) Safari/....
       ipAddress: req.ip, // ipAddress: desde dónde se conecta.
     });
@@ -51,9 +67,9 @@ export class AuthController {
       maxAge: JWT_ACCESS_EXPIRATION_MS,
     });
     //- RefreshToken
-    res.cookie(REFRESH_COOKIE_NAME, refreshToken, { 
-      ...refreshCookieOptions, 
-      maxAge: REFRESH_TOKEN_SEVEN_DAYS_MS 
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
+      ...refreshCookieOptions,
+      maxAge: REFRESH_TOKEN_SEVEN_DAYS_MS
     });
 
     return result;  // solo { user }
@@ -64,7 +80,7 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(200)
   async refresh(
-    @Req() req: Request, 
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response
   ) {
 
@@ -81,9 +97,9 @@ export class AuthController {
       maxAge: JWT_ACCESS_EXPIRATION_MS,
     });
     //- RefreshToken
-    res.cookie(REFRESH_COOKIE_NAME, refreshToken, { 
-      ...refreshCookieOptions, 
-      maxAge: REFRESH_TOKEN_SEVEN_DAYS_MS 
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
+      ...refreshCookieOptions,
+      maxAge: REFRESH_TOKEN_SEVEN_DAYS_MS
     });
   }
 
@@ -97,7 +113,7 @@ export class AuthController {
     return { ok: true };
   }
 
-  
+
   //? --- Logout de todos los dispositivos
   @Post('logout-all')
   @HttpCode(200)
@@ -126,17 +142,17 @@ export class AuthController {
     return { ok: true };
   }
 
-  
+
   //* --- Datos de usuario logeado
   @Get('me')
   @UseGuards(AuthGuard())
   getMe(@GetUser() user: client.User) {
     //- Solo lo que el front necesita, nunca el objeto completo
-    return { 
-      id: user.id, 
-      fullName: user.fullName, 
-      email: user.email, 
-      role: user.role 
+    return {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role
     }
   }
 

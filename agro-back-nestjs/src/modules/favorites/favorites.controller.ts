@@ -1,23 +1,24 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, UseGuards } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/core/decorators';
 import * as client from '@prisma/client';
 import { PaginationDto } from 'src/common/dto';
+import { ToggleFavoriteDto } from './dto/toggle-favorite.dto';
 
 @Controller('favorites')
 @UseGuards(AuthGuard())
 export class FavoritesController {
 
-  constructor(private readonly favoritesService: FavoritesService) {}
+  constructor(private readonly favoritesService: FavoritesService) { }
 
   //- Tomamos todas nuestras favoritas
   @Get('myFavorites')
-  getOurFavorites(
-    @Query() paginationFavourites: PaginationDto,
+  getmyFavorites(
+    @Query() pagination: PaginationDto,
     @GetUser() user: client.User
-  ){
-    return this.favoritesService.getAllOurFavorites(paginationFavourites, user.id)
+  ) {
+    return this.favoritesService.getAllOurFavorites(pagination, user.id)
   }
 
   @Get('ids')
@@ -25,13 +26,14 @@ export class FavoritesController {
     return this.favoritesService.ids(userId)
   }
 
-  //- Agregamos y Quitamos favorito
+  //- Agrega o quita un favorito
   @Post('toggle')
+  @HttpCode(200)
   toggleFavorite(
-    @Body('listingId') listingId: string,
-    @GetUser() user: client.User,
+    @GetUser('id') userId: string,
+    @Body() dto: ToggleFavoriteDto,
   ) {
-    return this.favoritesService.toggleFavorite(user.id, listingId)
+    return this.favoritesService.toggleFavorite(userId, dto.listingId)
   }
 
 

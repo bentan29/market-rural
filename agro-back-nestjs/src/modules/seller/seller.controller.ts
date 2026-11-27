@@ -5,23 +5,24 @@ import { CurrentSeller, GetUser } from 'src/core/decorators';
 import { CreateSellerDto } from './dto/create-seller.dto';
 import * as client from '@prisma/client';
 import { SellerGuard } from 'src/core/guards/seller.guard';
+import { VerifiedEmailGuard } from 'src/core/guards/verified-email.guard';
 
 @Controller('seller')
 export class SellerController {
 
   constructor(
     private readonly sellerService: SellerService,
-  ) {}
+  ) { }
 
   //! ================ Privadas ================
-    
+
   //? --- Crear cuenta de vendedor
   @Post('register')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(), VerifiedEmailGuard)
   create(@GetUser() user: client.User, @Body() dto: CreateSellerDto) {
     return this.sellerService.create(user.id, dto)
   }
-    
+
   //? --- Mis datos de vendedor ACTIVO
   //- SellerGuard ya verificó que existe y no está dado de baja, y deja req.sellerId
   @Get('me')
@@ -36,6 +37,12 @@ export class SellerController {
   @UseGuards(AuthGuard())
   findPrevious(@GetUser() user: client.User) {
     return this.sellerService.findPreviousForReactivation(user.id)
+  }
+
+  @Get('summary')
+  @UseGuards(AuthGuard('jwt'), SellerGuard)
+  summary(@CurrentSeller() sellerId: string) {
+    return this.sellerService.getSummary(sellerId)
   }
 
 

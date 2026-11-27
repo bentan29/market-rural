@@ -3,25 +3,15 @@ import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'cl
 
 const trim = () => Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
 
-const PHONE_REGEX = /^\+?[0-9\s-]{7,20}$/
+//- La misma regla que el front: entre 7 y 15 dígitos en total
+const PHONE_REGEX = /^(?=(?:\D*\d){7,15}\D*$)\+?[0-9\s-]{7,20}$/
 
 export class CreateInquiryDto {
 
     @trim()
-    @IsString()
-    @MinLength(2, { message: 'Ingresá tu nombre' })
-    @MaxLength(80)
-    name: string
-
-    @Transform(({ value }) => (typeof value === 'string' ? value.trim().toLowerCase() : value))
-    @IsEmail({}, { message: 'Ingresá un email válido' })
-    @MaxLength(120)
-    email: string
-
-    @IsOptional()
-    @trim()
+    @IsString({ message: 'Ingresá tu teléfono' })
     @Matches(PHONE_REGEX, { message: 'Teléfono inválido' })
-    phone?: string
+    phone: string
 
     @trim()
     @IsString()

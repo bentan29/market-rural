@@ -6,6 +6,8 @@ import * as bcrypt from 'bcrypt';
 import { TokensService } from '../tokens/tokens.service';
 import { SessionService } from '../session/session.service';
 import { LoginUserDto } from './dto/login-user.dto';
+import { EmailVerificationService } from './email-verification/email-verification.service';
+import { User } from '@prisma/client';
 
 
 @Injectable()
@@ -18,12 +20,19 @@ export class AuthService {
         private readonly usersService: UserService,
         private readonly sessionsService: SessionService,
         private readonly tokensService: TokensService,
+        private readonly emailVerification: EmailVerificationService,
     ) {}
 
 
     //? --- Registro de usuario
-    register(registerUserDto: RegisterUserDto) {
-        return this.usersService.registerUser(registerUserDto)
+    async register(registerUserDto: RegisterUserDto, next?: string) {
+        const result = await this.usersService.registerUser(registerUserDto)
+
+        //- Se busca por email (y no se asume la forma de lo que devuelve registerUser). El envío no frena el registro
+        const user = await this.usersService.findUserByEmail(registerUserDto.email)
+        if (user) await this.emailVerification.enqueue(user.id, next)
+
+        return result
     }
 
 
@@ -60,7 +69,8 @@ export class AuthService {
                 id: user.id, 
                 fullName: user.fullName,
                 email: user.email, 
-                role: user.role 
+                role: user.role,
+                emailVerified: !!user.emailVerifiedAt,
             },
         };
     }
@@ -121,6 +131,18 @@ export class AuthService {
     //? --- Cerramos solo la session que le indicamos
     revokeSession(userId: string, sessionId: string) {
         return this.sessionsService.revokeById(userId, sessionId);
+    }
+
+
+    //* --- Verificar el email con el token del enlace (público: se puede abrir desde otro dispositivo)
+    verifyEmail(token: string) {
+        return this.emailVerification.verify(token)
+    }
+
+
+    //* --- Reenviar el correo de verificación
+    resendVerification(user: User, next?: string) {
+        return this.emailVerification.requestResend(user, next)
     }
 
  
