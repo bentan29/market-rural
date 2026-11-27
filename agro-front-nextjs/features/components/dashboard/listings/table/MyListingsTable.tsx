@@ -1,6 +1,3 @@
-import Image from "next/image"
-import { TractorIcon } from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -22,7 +19,6 @@ import {
 } from "./listing-format"
 import { STATUS_CONFIG } from "./inputs-labels"
 import { ListingActions } from "./ListingActions"
-import { cloudinaryCardLoader } from "@/lib/cloudinary"
 import { ListingThumb } from "./ListingThumb"
 
 function StatusBadges({ listing }: { listing: ListingType }) {

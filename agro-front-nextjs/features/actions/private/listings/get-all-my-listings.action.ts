@@ -15,6 +15,7 @@ export type MyListingsFilters = {
   q?: string
   status?: readonly string[]
   operation?: readonly string[]
+  featured?: boolean
   sort?: string
   page?: number
 }
@@ -28,6 +29,8 @@ function toQuery(filters: MyListingsFilters) {
   if (filters.q) params.set('q', filters.q)
   filters.status?.forEach((s) => params.append('status', s))
   filters.operation?.forEach((o) => params.append('operation', o))
+  //- Apagado no se manda: el backend lo interpreta como "sin filtro"
+  if (filters.featured) params.set('featured', 'true')
   if (filters.sort) params.set('sort', filters.sort)
   params.set('page', String(filters.page ?? 1))
   return params.toString()
@@ -35,11 +38,11 @@ function toQuery(filters: MyListingsFilters) {
 
 //? --- Lectura al renderizar: serverGet NO refresca (proxy.ts ya renovó la sesión antes)
 export async function getallMyListingsAction(filters: MyListingsFilters = {}): Promise<MyListingsResult> {
-  
+
   if (!process.env.API_URL) {
-    return { 
-      ok: false, status: 500, 
-      message: 'Falta API_URL en las variables de entorno' 
+    return {
+      ok: false, status: 500,
+      message: 'Falta API_URL en las variables de entorno'
     }
   }
 
@@ -53,22 +56,22 @@ export async function getallMyListingsAction(filters: MyListingsFilters = {}): P
         status: res.status,
         message:
           res.status === 401 ? 'Tu sesión venció. Ingresá de nuevo.'
-          : res.status === 403 ? 'No sos un vendedor.'
-          : (extractMessage(body) ?? `El servidor respondió ${res.status}`),
+            : res.status === 403 ? 'No sos un vendedor.'
+              : (extractMessage(body) ?? `El servidor respondió ${res.status}`),
       }
     }
 
     if (!body) {
       return {
-        ok: false, 
-        status: res.status, 
+        ok: false,
+        status: res.status,
         message: 'El servidor respondió algo inesperado.'
       }
     }
 
-    return { 
-      ok: true, 
-      data: body 
+    return {
+      ok: true,
+      data: body
     }
   } catch (error) {
     console.error('getMyListings:', error)

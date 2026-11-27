@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Search01Icon, Sorting05Icon, Cancel01Icon, FilterHorizontalIcon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
 import { LISTING_OPERATIONS, LISTING_SORTS, LISTING_STATUSES } from "@/features/Nuqs/private/private-listings-nuqs"
 import { cn } from "@/lib/utils"
 import { useListingsFilters } from "@/features/Nuqs/private/use-listings-filters"
@@ -86,15 +87,13 @@ export function MyListingsFilters() {
         }
     }, [filters.q])
 
-    const hasFilters =
-        filters.q !== "" ||
-        filters.status.length > 0 ||
-        filters.operation.length > 0
-
     const activeCount =
         (filters.q !== "" ? 1 : 0) +
         filters.status.length +
-        filters.operation.length
+        filters.operation.length +
+        (filters.featured ? 1 : 0)
+
+    const hasFilters = activeCount > 0
 
     function clearFilters() {
         sent.current = ""
@@ -103,6 +102,7 @@ export function MyListingsFilters() {
             q: "",
             status: [],
             operation: [],
+            featured: false,
             page: 1,
         })
     }
@@ -246,6 +246,26 @@ export function MyListingsFilters() {
                             </Chip>
                         ))}
                     </div>
+                </div>
+
+                {/* Featured filter: un único sí o no, por eso es un switch y no un chip */}
+                <div className="space-y-3">
+                    <GroupLabel count={filters.featured ? 1 : 0}>Destacadas</GroupLabel>
+
+                    {/* El label envuelve todo: tocar el texto también activa el switch */}
+                    <label className="flex cursor-pointer items-center justify-between gap-4 rounded-md border border-teal-900/15 bg-white px-4 py-3 shadow-xs transition-colors hover:border-teal-700">
+                        <span className="space-y-0.5">
+                            <span className="block text-sm font-semibold text-teal-950">Solo destacadas</span>
+                            <span className="block text-xs text-teal-900/60">
+                                Las que hoy tienen el destacado vigente
+                            </span>
+                        </span>
+
+                        <Switch
+                            checked={filters.featured}
+                            onCheckedChange={(checked) => setFilters({ featured: checked, page: 1 })}
+                        />
+                    </label>
                 </div>
             </div>
 

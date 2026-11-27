@@ -4,7 +4,7 @@ import type { ListingType } from "@/lib/types/listing.type"
 
 const API = process.env.API_URL
 
-export async function getFeaturedListings(limit = 8): Promise<ListingType[]> {
+export async function getFeaturedListings(limit = 12): Promise<ListingType[]> {
     "use cache"
     cacheLife("minutes")
     cacheTag("listings")

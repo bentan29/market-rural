@@ -1,6 +1,6 @@
 import { ListingOperation, ListingStatus } from "@prisma/client";
 import { Transform } from "class-transformer";
-import { IsEnum, IsIn, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsBoolean, IsEnum, IsIn, IsOptional, IsString, MaxLength } from "class-validator";
 import { LISTING_SORTS,  type ListingsSort, PaginationDto } from "src/common/dto";
 
 
@@ -30,6 +30,12 @@ export class PrivateListingsDto extends PaginationDto {
     @IsOptional()
     @IsIn(LISTING_SORTS, { message: 'Orden inválido' })
     sort?: ListingsSort
+
+    //- En la URL llega como texto: "true" o "false". Cualquier otra cosa se rechaza (con Boolean('false') daría true)
+    @IsOptional()
+    @Transform(({ value }) => (value === 'true' ? true : value === 'false' ? false : value))
+    @IsBoolean({ message: 'featured debe ser true o false' })
+    featured?: boolean
     
 
 }

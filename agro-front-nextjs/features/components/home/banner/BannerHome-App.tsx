@@ -9,7 +9,7 @@ import TopographyBackground from "../../animations/Topography-background"
 const ACTIONS = [
     {
         index: "01",
-        href: "/catalogo",
+        href: "/maquinarias",
         eyebrow: "Quiero comprar",
         title: "Ver catálogo",
         description: "Tractores, cosechadoras y equipos, en venta y alquiler.",
@@ -131,7 +131,7 @@ export const BannerHomeApp = () => {
                                         className={cn(
                                             "group flex min-h-28 items-center gap-4 p-5 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:ring-inset md:p-6",
                                             primary
-                                                ? "bg-brand text-brand-foreground hover:bg-brand-hover"
+                                                ? "bg-brand text-brand-foreground hover:bg-lime-600"
                                                 : "text-white hover:bg-white/10",
                                         )}
                                     >

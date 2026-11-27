@@ -90,7 +90,7 @@ export async function CatalogResults({ scope, basePath, countLabel = "", searchP
     }
 
     return (
-      <div className="space-y-4">
+      <div className="mx-auto w-full max-w-7xl pb-8 ">
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">

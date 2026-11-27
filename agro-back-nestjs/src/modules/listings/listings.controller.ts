@@ -33,7 +33,10 @@ export class ListingsController {
   //- Tomamos todas nuestras publicaciones
   @Get('myListings')
   @UseGuards(AuthGuard(), SellerGuard)
-  myListings(@CurrentSeller() sellerId: string, @Query() dto: PrivateListingsDto) {
+  myListings(
+    @CurrentSeller() sellerId: string, 
+    @Query() dto: PrivateListingsDto
+  ) {
     return this.listingsService.myListings(sellerId, dto)
   }
 
@@ -95,7 +98,7 @@ export class ListingsController {
   //- Publicaciones destacadas
   @Get('featured')
   getFeatured(
-    @Query('limit', new DefaultValuePipe(8), ParseIntPipe) limit: number
+    @Query('limit', new DefaultValuePipe(12), ParseIntPipe) limit: number
   ) {
     return this.listingsService.findFeatured(limit)
   }

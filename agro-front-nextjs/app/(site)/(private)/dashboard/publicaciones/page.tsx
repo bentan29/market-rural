@@ -7,7 +7,7 @@ import { PaginationApp } from "@/features/components/global/pagination/Paginatio
 import { privateListingsNuqs } from "@/features/Nuqs/private/private-listings-nuqs";
 import { Add02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { cn } from "cn";
+import { cn } from "@/lib/utils"; // CAMBIO: antes era from "cn"
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createSearchParamsCache } from "nuqs/server";
@@ -21,13 +21,14 @@ interface Props {
 
 
 //? ---------------
-async function ListeningContent({searchParams} : Props) {
+async function ListeningContent({ searchParams }: Props) {
 
     const filters = await cache.parse(searchParams)
-    const result = await getallMyListingsAction({...filters})
+    const result = await getallMyListingsAction({ ...filters })
 
-    if(!result.ok) {
-        if (result.status === 401) redirect("/login?next=/dashboard/suscripcion")
+    if (!result.ok) {
+        //- CAMBIO: antes volvía a /dashboard/suscripcion después de iniciar sesión
+        if (result.status === 401) redirect("/login?next=/dashboard/publicaciones")
         return (
             <p
                 role="alert"
@@ -39,12 +40,16 @@ async function ListeningContent({searchParams} : Props) {
     }
 
     //- ¿Hay algún filtro activo? (el orden no cuenta: no excluye nada)
+    //- CAMBIO: sumé featured; sin eso, "solo destacadas" sin resultados decía "todavía no publicaste ninguna máquina"
     const hasFilters =
-        filters.q !== "" || filters.status.length > 0 || filters.operation.length > 0
-        
+        filters.q !== "" ||
+        filters.status.length > 0 ||
+        filters.operation.length > 0 ||
+        filters.featured
+
     const { items, total, totalPages } = result.data
 
-   
+
 
     if (total === 0) {
         //- Con filtros: nada coincide. Sin filtros: todavía no publicó nada
@@ -89,13 +94,13 @@ async function ListeningContent({searchParams} : Props) {
             </p>
             <MyListingsTable listings={items} />
 
-            <PaginationApp totalPages={totalPages}/>
+            <PaginationApp totalPages={totalPages} />
         </div>
     )
 }
 
 //? ---------------
-export default function PublicacionesPage({searchParams}: Props) {
+export default function PublicacionesPage({ searchParams }: Props) {
     return (
         <div className="flex flex-col gap-6 pb-10">
             <DashboardPageHeader
@@ -103,9 +108,9 @@ export default function PublicacionesPage({searchParams}: Props) {
             />
 
             <div>
-                <Link 
+                <Link
                     href="/dashboard/publicaciones/crear"
-                    className={cn(buttonVariants({variant: "secondary" }))}
+                    className={cn(buttonVariants({ variant: "secondary" }))}
                 >
                     <HugeiconsIcon icon={Add02Icon} />
                     Crear nueva
@@ -118,7 +123,7 @@ export default function PublicacionesPage({searchParams}: Props) {
             </Suspense>
 
             <Suspense fallback={<div className="h-40 animate-pulse rounded-sm bg-muted" />}>
-                <ListeningContent searchParams={searchParams}/> 
+                <ListeningContent searchParams={searchParams} />
             </Suspense>
         </div>
     );

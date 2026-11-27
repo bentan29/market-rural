@@ -123,10 +123,10 @@ export class ListingsService {
 
         const now = new Date()
 
-        const { q, status, operation, sort } = query
+        const { q, status, operation, featured, sort } = query
 
         const page = query.page ?? 1
-        const limit = query.limit ?? 8
+        const limit = query.limit ?? 15
         const skip = (page - 1) * limit
 
         //- Cada filtro es un elemento del AND: se combinan sin pisarse las claves
@@ -143,6 +143,7 @@ export class ListingsService {
 
         if (status?.length) filters.push({ status: { in: status } })
         if (operation?.length) filters.push({ operation: { in: operation } })
+        if (featured) filters.push({ featuredUntil: { gt: now } })
 
         const where: Prisma.ListingWhereInput = { AND: filters }
 
@@ -609,7 +610,7 @@ export class ListingsService {
 
 
     //? ---- Destacadas para la home
-    async findFeatured(limit = 8) {
+    async findFeatured(limit = 12) {
         const now = new Date()
         const take = Math.min(12, Math.max(1, limit))
 
